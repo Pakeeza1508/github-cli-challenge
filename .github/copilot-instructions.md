@@ -23,3 +23,14 @@ _Document project-specific conventions, patterns, and architectural decisions he
 ## Notes
 
 This is a template file. Update it with actual project information as the codebase develops.
+
+
+
+
+
+
+
+Create the repo on GitHub and push it:
+(This command creates the repo on your GitHub account and pushes your code immediately)
+
+gh repo create github-cli-challenge --public --source=. --remote=origin --push
