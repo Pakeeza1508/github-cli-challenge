@@ -34,3 +34,7 @@ Create the repo on GitHub and push it:
 (This command creates the repo on your GitHub account and pushes your code immediately)
 
 gh repo create github-cli-challenge --public --source=. --remote=origin --push
+
+
+cd C:\Users\Pakeeza\github-cli-challenge\gh-focus;
+.\venv\Scripts\Activate.ps1;

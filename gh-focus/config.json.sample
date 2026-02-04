@@ -1,0 +1,23 @@
+# Sample configuration for testing gh-focus
+# This file will be auto-generated when you run the tool
+# You can manually edit this to add channels quickly
+
+{
+    "coding": [
+        {
+            "name": "Fireship",
+            "id": "UCsBjURrPoezykLs9EqgamOA"
+        },
+        {
+            "name": "Traversy Media",
+            "id": "UC29ju8bIPH5as8OGnQzwJyA"
+        }
+    ],
+    "business": [
+        {
+            "name": "Y Combinator",
+            "id": "UCcefcZRL2oaA_uBNeo5UOWg"
+        }
+    ],
+    "entertainment": []
+}

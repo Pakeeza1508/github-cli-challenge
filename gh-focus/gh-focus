@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""
+gh-focus: A distraction-free YouTube CLI for focused learning
+GitHub CLI Extension for the 2026 Challenge
+"""
+
+import sys
+import webbrowser
+import questionary
+from rich import print
+from rich.panel import Panel
+from rich.console import Console
+from focus_manager import load_config, add_channel
+from fetcher import get_videos
+
+console = Console()
+
+def open_safe_mode(video_id):
+    """
+    Opens the video in Embed mode.
+    NO comments, NO sidebar, NO autoplay next.
+    Pure focus. Pure learning.
+    """
+    # ?autoplay=1 -> Starts immediately
+    # &rel=0 -> Shows related videos from the SAME channel only at the end
+    # &modestbranding=1 -> Minimal YouTube branding
+    url = f"https://www.youtube.com/embed/{video_id}?autoplay=1&rel=0&modestbranding=1"
+    webbrowser.open(url)
+    print(f"[green]✓[/green] Opened in focus mode: [blue]{url}[/blue]")
+
+def show_banner():
+    """Display welcome banner."""
+    banner = """
+    ╔═══════════════════════════════════╗
+    ║   🎯 YouTube Focus Mode           ║
+    ║   Curated. Intentional. Focused.  ║
+    ╚═══════════════════════════════════╝
+    """
+    console.print(banner, style="bold cyan")
+
+def main():
+    show_banner()
+    print(Panel.fit("Focus Mode: [bold blue]ON[/bold blue] 🧠", border_style="green"))
+    
+    config = load_config()
+    
+    # 1. Ask for Mood (Category)
+    categories = list(config.keys()) + ["+ Add New Channel", "Exit"]
+    choice = questionary.select(
+        "What is your focus right now?",
+        choices=categories
+    ).ask()
+    
+    if choice == "Exit":
+        print("[yellow]Stay focused! See you next time.[/yellow]")
+        sys.exit()
+        
+    if choice == "+ Add New Channel":
+        cat = questionary.select(
+            "Which category?", 
+            choices=list(config.keys())
+        ).ask()
+        
+        name = questionary.text("Channel Name (e.g., Fireship):").ask()
+        c_id = questionary.text("Channel ID (starts with UC...):").ask()
+        
+        if add_channel(cat, name, c_id):
+            print(f"[green]✓ Added {name} to {cat}![/green]")
+        else:
+            print(f"[yellow]Channel already exists in {cat}[/yellow]")
+        return  # Restart or exit
+        
+    # 2. Fetch Videos for that category
+    channels = config[choice]
+    if not channels:
+        print("[red]No channels in this list yet![/red]")
+        print("[yellow]Tip: Select '+ Add New Channel' to get started[/yellow]")
+        return
+
+    videos = get_videos(channels)
+    
+    if not videos:
+        print("[red]No videos found. Check your channel IDs.[/red]")
+        return
+    
+    # 3. Create the Selection List
+    video_choices = []
+    video_map = {}  # To look up ID later
+    
+    for v in videos:
+        display_text = f"[{v['channel']}] {v['title']}"
+        video_choices.append(display_text)
+        video_map[display_text] = v['video_id']
+        
+    video_choices.append("← Cancel")
+    
+    selected_text = questionary.select(
+        "Select a video to focus on:",
+        choices=video_choices
+    ).ask()
+    
+    if selected_text == "← Cancel":
+        print("[yellow]No worries. Come back when you're ready to focus.[/yellow]")
+        sys.exit()
+        
+    # 4. Launch Safe Mode
+    video_id = video_map[selected_text]
+    print(f"\n[bold yellow]🎬 Opening safe environment...[/bold yellow]")
+    open_safe_mode(video_id)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[yellow]Focus session interrupted. Stay intentional![/yellow]")
+        sys.exit(0)
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
