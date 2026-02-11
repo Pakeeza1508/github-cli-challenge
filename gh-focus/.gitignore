@@ -20,6 +20,15 @@ lib/
 lib64/
 parts/
 sdist/
+
+# Large executable files
+mpv.exe
+vlc.exe
+*.exe
+
+# User-specific config and data
+config.json
+watch_history.json
 var/
 wheels/
 pip-wheel-metadata/
@@ -45,3 +54,4 @@ Thumbs.db
 .env
 .env.local
 *.log
+

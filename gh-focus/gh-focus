@@ -6,114 +6,212 @@ GitHub CLI Extension for the 2026 Challenge
 
 import sys
 import webbrowser
+import subprocess
+import shutil
+import os
 import questionary
 from rich import print
 from rich.panel import Panel
-from rich.console import Console
-from focus_manager import load_config, add_channel
+from focus_manager import load_config, add_channel, log_watch, get_watch_stats
 from fetcher import get_videos
-
-console = Console()
 
 def open_safe_mode(video_id):
     """
-    Opens the video in Embed mode.
-    NO comments, NO sidebar, NO autoplay next.
-    Pure focus. Pure learning.
+    Opens video using the local mpv.exe if found, otherwise tries system players.
     """
-    # ?autoplay=1 -> Starts immediately
-    # &rel=0 -> Shows related videos from the SAME channel only at the end
-    # &modestbranding=1 -> Minimal YouTube branding
-    url = f"https://www.youtube.com/embed/{video_id}?autoplay=1&rel=0&modestbranding=1"
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    
+    # 1. Check for mpv.exe in the SAME folder as this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    local_mpv = os.path.join(script_dir, "mpv.exe")
+    
+    if os.path.exists(local_mpv):
+        print(f"[bold green]🚀 Launching Portable MPV...[/bold green]")
+        # We need to pass the full path to yt-dlp if it's not in PATH, 
+        # but since you pip installed it, mpv should find it automatically.
+        subprocess.run([local_mpv, url])
+        return
+
+    # 2. Check for System MPV (Global install)
+    if shutil.which("mpv"):
+        print(f"[bold green]🚀 Launching System MPV...[/bold green]")
+        subprocess.run(["mpv", url])
+        return
+
+    # 3. Check for VLC (Backup)
+    vlc_path = shutil.which("vlc")
+    if not vlc_path:
+        # Check standard Windows paths
+        paths = [
+            r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+            r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
+        ]
+        for p in paths:
+            if os.path.exists(p):
+                vlc_path = p
+                break
+    
+    if vlc_path:
+        print(f"[bold orange3]🎬 Launching VLC...[/bold orange3]")
+        subprocess.run([vlc_path, url, "--play-and-exit"])
+        return
+
+    # 4. Give up and use Browser
+    print("[bold red]❌ No Player Found![/bold red]")
+    print(f"Please copy 'mpv.exe' into this folder: {script_dir}")
+    print("[yellow]Falling back to Browser...[/yellow]")
     webbrowser.open(url)
-    print(f"[green]✓[/green] Opened in focus mode: [blue]{url}[/blue]")
 
 def show_banner():
     """Display welcome banner."""
-    banner = """
-    ╔═══════════════════════════════════╗
-    ║   🎯 YouTube Focus Mode           ║
-    ║   Curated. Intentional. Focused.  ║
-    ╚═══════════════════════════════════╝
-    """
-    console.print(banner, style="bold cyan")
+    print(Panel.fit("[bold white]🎯 YouTube Focus Mode[/bold white]\n[cyan]Curated. Intentional. Focused.[/cyan]", border_style="cyan"))
+
+def show_stats():
+    """Display learning statistics."""
+    stats = get_watch_stats()
+    
+    print(Panel(
+        f"[bold cyan]📊 Your Learning Stats[/bold cyan]\n"
+        f"[green]Videos Watched:[/green] {stats['total_videos']}\n"
+        f"[green]Total Time:[/green] {stats['total_time']}\n"
+        f"[green]Categories:[/green] {', '.join([f'{k} ({v})' for k, v in stats['categories'].items()]) if stats['categories'] else 'None'}",
+        border_style="cyan"
+    ))
+    
+    if stats['recent']:
+        print("\n[bold cyan]📺 Recent Videos:[/bold cyan]")
+        for video in reversed(stats['recent']):
+            date = video.get('timestamp', '').split('T')[0]
+            print(f"  ✓ {video['title'][:50]}... ({date})")
 
 def main():
+    # Handle command-line arguments
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--stats":
+            show_stats()
+            return
+        elif sys.argv[1] == "--help":
+            print("[cyan]Usage:[/cyan]")
+            print("  python gh-focus          Start interactive mode")
+            print("  python gh-focus --stats  Show learning statistics")
+            print("  python gh-focus --help   Show this help message")
+            return
+    
     show_banner()
-    print(Panel.fit("Focus Mode: [bold blue]ON[/bold blue] 🧠", border_style="green"))
     
-    config = load_config()
-    
-    # 1. Ask for Mood (Category)
-    categories = list(config.keys()) + ["+ Add New Channel", "Exit"]
-    choice = questionary.select(
-        "What is your focus right now?",
-        choices=categories
-    ).ask()
-    
-    if choice == "Exit":
-        print("[yellow]Stay focused! See you next time.[/yellow]")
-        sys.exit()
+    # MAIN LOOP: Keeps the app running
+    while True:
+        config = load_config()
         
-    if choice == "+ Add New Channel":
-        cat = questionary.select(
-            "Which category?", 
-            choices=list(config.keys())
+        # 1. Ask for Mood (Category)
+        main_options = list(config.keys()) + ["📊 View Stats", "+ Add New Channel", "Exit"]
+        
+        choice = questionary.select(
+            "What is your focus right now?",
+            choices=main_options,
+            style=questionary.Style([('answer', 'fg:cyan bold')])
         ).ask()
         
-        name = questionary.text("Channel Name (e.g., Fireship):").ask()
-        c_id = questionary.text("Channel ID (starts with UC...):").ask()
+        # Handle Main Menu Exits
+        if choice == "Exit":
+            print("[bold red]Stay focused! Goodbye. 👋[/bold red]")
+            sys.exit()
         
-        if add_channel(cat, name, c_id):
-            print(f"[green]✓ Added {name} to {cat}![/green]")
-        else:
-            print(f"[yellow]Channel already exists in {cat}[/yellow]")
-        return  # Restart or exit
-        
-    # 2. Fetch Videos for that category
-    channels = config[choice]
-    if not channels:
-        print("[red]No channels in this list yet![/red]")
-        print("[yellow]Tip: Select '+ Add New Channel' to get started[/yellow]")
-        return
+        if choice == "📊 View Stats":
+            show_stats()
+            questionary.confirm("Press Enter to continue...").ask()
+            continue
+            
+        if choice == "+ Add New Channel":
+            cat = questionary.select(
+                "Which category?", 
+                choices=list(config.keys())
+            ).ask()
+            
+            name = questionary.text("Channel Name (e.g., Fireship):").ask()
+            c_id = questionary.text("Channel ID (starts with UC...):").ask()
+            
+            if add_channel(cat, name, c_id):
+                print(f"[green]✓ Added {name} to {cat}![/green]")
+            else:
+                print(f"[yellow]Channel already exists in {cat}[/yellow]")
+            continue  # Go back to start of loop
 
-    videos = get_videos(channels)
-    
-    if not videos:
-        print("[red]No videos found. Check your channel IDs.[/red]")
-        return
-    
-    # 3. Create the Selection List
-    video_choices = []
-    video_map = {}  # To look up ID later
-    
-    for v in videos:
-        display_text = f"[{v['channel']}] {v['title']}"
-        video_choices.append(display_text)
-        video_map[display_text] = v['video_id']
-        
-    video_choices.append("← Cancel")
-    
-    selected_text = questionary.select(
-        "Select a video to focus on:",
-        choices=video_choices
-    ).ask()
-    
-    if selected_text == "← Cancel":
-        print("[yellow]No worries. Come back when you're ready to focus.[/yellow]")
-        sys.exit()
-        
-    # 4. Launch Safe Mode
-    video_id = video_map[selected_text]
-    print(f"\n[bold yellow]🎬 Opening safe environment...[/bold yellow]")
-    open_safe_mode(video_id)
+        # 2. Fetch Videos for that category
+        channels = config[choice]
+        if not channels:
+            print("[red]No channels in this list yet![/red]")
+            print("[yellow]Tip: Select '+ Add New Channel' to get started[/yellow]")
+            continue
+
+        # INNER LOOP: Stay in this category until user goes back
+        while True:
+            videos = get_videos(channels)
+
+            if not videos:
+                print("[yellow]No recent videos found.[/yellow]")
+                break
+
+            # 3. Create the Selection List
+            video_choices = []
+            video_map = {}
+            video_info = {}
+            
+            for v in videos:
+                # 🚫 BLOCK SHORTS: Skip short-form content
+                if "#shorts" in v['title'].lower() or "short" in v['title'].lower():
+                    continue
+                
+                # Clean up title for display
+                display_text = f"[{v['channel']}] {v['title'][:60]}"
+                video_choices.append(display_text)
+                video_map[display_text] = v['video_id']
+                video_info[display_text] = v
+            
+            if not video_choices:
+                print("[yellow]No full-length videos found (only Shorts).[/yellow]")
+                break
+            
+            # Add Navigation
+            video_choices.append("🔙 Go Back")
+            video_choices.append("❌ Exit App")
+            
+            selected_text = questionary.select(
+                f"📺 {choice.upper()} - Select video:",
+                choices=video_choices
+            ).ask()
+            
+            # Navigation Logic
+            if selected_text == "❌ Exit App":
+                print("[bold red]Goodbye! 👋[/bold red]")
+                sys.exit()
+                
+            if selected_text == "🔙 Go Back":
+                break  # Breaks inner loop, goes back to Main Menu
+                
+            # Launch Video
+            video_id = video_map[selected_text]
+            video_data = video_info[selected_text]
+            print(f"\n[bold yellow]🎬 {selected_text}[/bold yellow]")
+            print("[dim]YouTube will open. Close the tab when done to return here.[/dim]\n")
+            
+            # Log the watch
+            log_watch(
+                video_data['title'],
+                video_data['channel'],
+                video_id,
+                choice
+            )
+            
+            open_safe_mode(video_id)
+            # The loop continues, so you come back to the video list!
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n[yellow]Focus session interrupted. Stay intentional![/yellow]")
+        print("\n[bold red]Force Exit. Stay focused! 👋[/bold red]")
         sys.exit(0)
     except Exception as e:
-        console.print(f"[red]Error: {e}[/red]")
+        print(f"[red]Error: {e}[/red]")
         sys.exit(1)
