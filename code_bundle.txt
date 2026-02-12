@@ -1,3 +1,38 @@
+=== gh-focus.cmd ===
+@echo off
+REM GitHub CLI extension entry point for Windows
+REM This script runs the Python CLI
+
+setlocal
+
+REM Get the directory where the extension is installed
+set "EXTENSION_DIR=%~dp0"
+
+REM Check if Python is installed
+where python >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Error: Python is required but not found.
+    echo Please install Python 3.7+ from https://www.python.org/downloads/
+    exit /b 1
+)
+
+REM Check if virtual environment exists, create if not
+if not exist "%EXTENSION_DIR%gh-focus\venv" (
+    echo Setting up gh-focus for first time...
+    python -m venv "%EXTENSION_DIR%gh-focus\venv"
+    call "%EXTENSION_DIR%gh-focus\venv\Scripts\activate.bat"
+    pip install -q -r "%EXTENSION_DIR%gh-focus\requirements.txt"
+    echo Setup complete!
+)
+
+REM Activate virtual environment
+call "%EXTENSION_DIR%gh-focus\venv\Scripts\activate.bat"
+
+REM Run the actual Python script
+cd /d "%EXTENSION_DIR%gh-focus"
+python gh-focus %*
+
+=== gh-focus/gh-focus ===
 #!/usr/bin/env python3
 """
 gh-focus: A distraction-free YouTube CLI for focused learning
@@ -13,7 +48,7 @@ import questionary
 from rich import print
 from rich.panel import Panel
 from focus_manager import load_config, add_channel, log_watch, get_watch_stats, get_gist_id, save_gist_id
-from fetcher import get_videos, resolve_channel_id
+from fetcher import get_videos
 
 def check_gh_auth():
     """Checks if gh CLI is installed and logged in."""
@@ -107,14 +142,14 @@ def open_safe_mode(video_id):
     Opens video using the local mpv.exe if found, otherwise tries system players.
     """
     url = f"https://www.youtube.com/watch?v={video_id}"
-    
+
     # 1. Check for mpv.exe in the SAME folder as this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     local_mpv = os.path.join(script_dir, "mpv.exe")
-    
+
     if os.path.exists(local_mpv):
         print(f"[bold green]🚀 Launching Portable MPV...[/bold green]")
-        # We need to pass the full path to yt-dlp if it's not in PATH, 
+        # We need to pass the full path to yt-dlp if it's not in PATH,
         # but since you pip installed it, mpv should find it automatically.
         subprocess.run([local_mpv, url])
         return
@@ -137,7 +172,7 @@ def open_safe_mode(video_id):
             if os.path.exists(p):
                 vlc_path = p
                 break
-    
+
     if vlc_path:
         print(f"[bold orange3]🎬 Launching VLC...[/bold orange3]")
         subprocess.run([vlc_path, url, "--play-and-exit"])
@@ -156,7 +191,7 @@ def show_banner():
 def show_stats():
     """Display learning statistics."""
     stats = get_watch_stats()
-    
+
     print(Panel(
         f"[bold cyan]📊 Your Learning Stats[/bold cyan]\n"
         f"[green]Videos Watched:[/green] {stats['total_videos']}\n"
@@ -164,7 +199,7 @@ def show_stats():
         f"[green]Categories:[/green] {', '.join([f'{k} ({v})' for k, v in stats['categories'].items()]) if stats['categories'] else 'None'}",
         border_style="cyan"
     ))
-    
+
     if stats['recent']:
         print("\n[bold cyan]📺 Recent Videos:[/bold cyan]")
         for video in reversed(stats['recent']):
@@ -183,67 +218,49 @@ def main():
             print("  python gh-focus --stats  Show learning statistics")
             print("  python gh-focus --help   Show this help message")
             return
-    
+
     show_banner()
 
     if not check_gh_auth():
         sys.exit(1)
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    local_mpv = os.path.join(script_dir, "mpv.exe")
-    if not os.path.exists(local_mpv) and not shutil.which("mpv"):
-        print(Panel(
-            "[yellow]MPV Player not detected![/yellow]\n\n"
-            "For the best experience (no ads/shorts), please:\n"
-            "1. Download mpv.exe\n"
-            f"2. Place it in this folder: [cyan]{script_dir}[/cyan]",
-            title="Setup Required"
-        ))
-        input("Press Enter to continue using Browser Mode...")
-    
     # MAIN LOOP: Keeps the app running
     while True:
         config = load_config()
-        
+
         # 1. Ask for Mood (Category)
         categories = [key for key, value in config.items() if isinstance(value, list)]
         main_options = categories + ["📊 View Stats", "+ Add New Channel", "Exit"]
-        
+
         choice = questionary.select(
             "What is your focus right now?",
             choices=main_options,
             style=questionary.Style([('answer', 'fg:cyan bold')])
         ).ask()
-        
+
         # Handle Main Menu Exits
         if choice == "Exit":
             print("[bold red]Stay focused! Goodbye. 👋[/bold red]")
             sys.exit()
-        
+
         if choice == "📊 View Stats":
             show_stats()
             questionary.confirm("Press Enter to continue...").ask()
             continue
-            
+
         if choice == "+ Add New Channel":
             cat = questionary.select(
                 "Which category?",
                 choices=categories
             ).ask()
-            
-            user_input = questionary.text(
-                "Channel handle (e.g., @Fireship) or URL:"
-            ).ask()
 
-            c_id = resolve_channel_id(user_input)
-            if c_id:
-                name = questionary.text(f"Found ID {c_id}! Enter a display name:").ask()
-                if add_channel(cat, name, c_id):
-                    print(f"[green]✓ Added {name} to {cat}![/green]")
-                else:
-                    print(f"[yellow]Channel already exists in {cat}[/yellow]")
+            name = questionary.text("Channel Name (e.g., Fireship):").ask()
+            c_id = questionary.text("Channel ID (starts with UC...):").ask()
+
+            if add_channel(cat, name, c_id):
+                print(f"[green]✓ Added {name} to {cat}![/green]")
             else:
-                print("[bold red]❌ Could not find a channel with that handle.[/bold red]")
+                print(f"[yellow]Channel already exists in {cat}[/yellow]")
             continue  # Go back to start of loop
 
         # 2. Fetch Videos for that category
@@ -265,39 +282,39 @@ def main():
             video_choices = []
             video_map = {}
             video_info = {}
-            
+
             for v in videos:
                 # 🚫 BLOCK SHORTS: Skip short-form content
                 if "#shorts" in v['title'].lower() or "short" in v['title'].lower():
                     continue
-                
+
                 # Clean up title for display
                 display_text = f"[{v['channel']}] {v['title'][:60]}"
                 video_choices.append(display_text)
                 video_map[display_text] = v['video_id']
                 video_info[display_text] = v
-            
+
             if not video_choices:
                 print("[yellow]No full-length videos found (only Shorts).[/yellow]")
                 break
-            
+
             # Add Navigation
             video_choices.append("🔙 Go Back")
             video_choices.append("❌ Exit App")
-            
+
             selected_text = questionary.select(
                 f"📺 {choice.upper()} - Select video:",
                 choices=video_choices
             ).ask()
-            
+
             # Navigation Logic
             if selected_text == "❌ Exit App":
                 print("[bold red]Goodbye! 👋[/bold red]")
                 sys.exit()
-                
+
             if selected_text == "🔙 Go Back":
                 break  # Breaks inner loop, goes back to Main Menu
-                
+
             # Choose action for the selected video
             video_id = video_map[selected_text]
             video_data = video_info[selected_text]
@@ -338,3 +355,175 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[red]Error: {e}[/red]")
         sys.exit(1)
+
+=== gh-focus/fetcher.py ===
+import feedparser
+from rich.console import Console
+
+console = Console()
+
+def get_videos(channel_list):
+    """
+    Fetch latest videos from YouTube channels using RSS feeds.
+    No API key required!
+    """
+    videos = []
+
+    with console.status("[bold green]Fetching latest intentional content..."):
+        for channel in channel_list:
+            # The Magic URL (No API Key needed)
+            rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel['id']}"
+
+            try:
+                feed = feedparser.parse(rss_url)
+
+                # Get the last 3 videos from this channel
+                for entry in feed.entries[:3]:
+                    videos.append({
+                        "title": entry.title,
+                        "link": entry.link,
+                        "channel": channel['name'],
+                        "published": entry.published,
+                        "video_id": entry.yt_videoid  # Feedparser extracts this for us
+                    })
+            except Exception as e:
+                console.print(f"[red]Error fetching from {channel['name']}: {e}[/red]")
+                continue
+
+    # Sort by newest first (simplified for now)
+    return videos
+
+def extract_channel_id(channel_url):
+    """
+    Extract channel ID from a YouTube channel URL.
+    Supports formats:
+    - youtube.com/channel/UC...
+    - youtube.com/@username
+    """
+    # This is a placeholder - in Phase 2 we can add proper extraction
+    # For now, users will paste the ID directly
+    if "channel/" in channel_url:
+        return channel_url.split("channel/")[-1].split("/")[0]
+    return None
+
+=== gh-focus/focus_manager.py ===
+import json
+import os
+from datetime import datetime
+
+# Where we store data
+CONFIG_FILE = "config.json"
+HISTORY_FILE = "watch_history.json"
+
+# Default structure
+DEFAULT_CONFIG = {
+    "coding": [],
+    "business": [],
+    "entertainment": []
+}
+
+def load_config():
+    """Load configuration from JSON file, create if doesn't exist."""
+    if not os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(DEFAULT_CONFIG, f, indent=4)
+        return DEFAULT_CONFIG
+
+    with open(CONFIG_FILE, "r") as f:
+        return json.load(f)
+
+def save_config(data):
+    """Save configuration to JSON file."""
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+def get_gist_id():
+    """Return the stored gist id, if any."""
+    data = load_config()
+    return data.get("gist_id")
+
+def save_gist_id(gist_id):
+    """Persist the gist id into config.json."""
+    data = load_config()
+    data["gist_id"] = gist_id
+    save_config(data)
+
+def add_channel(category, name, channel_id):
+    """Add a channel to a specific category."""
+    data = load_config()
+    if category not in data:
+        data[category] = []
+
+    # Avoid duplicates
+    for ch in data[category]:
+        if ch['id'] == channel_id:
+            return False
+
+    data[category].append({"name": name, "id": channel_id})
+    save_config(data)
+    return True
+
+def get_channels(category):
+    """Get all channels in a specific category."""
+    data = load_config()
+    return data.get(category, [])
+
+def list_all_channels():
+    """List all channels across all categories."""
+    data = load_config()
+    return data
+
+def log_watch(video_title, channel_name, video_id, category):
+    """Log a watched video to history."""
+    history = []
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r") as f:
+            try:
+                history = json.load(f)
+            except json.JSONDecodeError:
+                history = []
+
+    history.append({
+        "title": video_title,
+        "channel": channel_name,
+        "video_id": video_id,
+        "category": category,
+        "timestamp": datetime.now().isoformat()
+    })
+
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(history, f, indent=4)
+
+def get_watch_history():
+    """Get all watched videos."""
+    if not os.path.exists(HISTORY_FILE):
+        return []
+
+    with open(HISTORY_FILE, "r") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return []
+
+def get_watch_stats():
+    """Get learning statistics."""
+    history = get_watch_history()
+    if not history:
+        return {"total_videos": 0, "total_time": "0h 0m", "categories": {}}
+
+    categories = {}
+    for video in history:
+        cat = video.get("category", "Unknown")
+        categories[cat] = categories.get(cat, 0) + 1
+
+    # Assume average video is 10 minutes for demo purposes
+    total_minutes = len(history) * 10
+    hours = total_minutes // 60
+    minutes = total_minutes % 60
+
+    return {
+        "total_videos": len(history),
+        "total_time": f"{hours}h {minutes}m",
+        "categories": categories,
+        "recent": history[-5:] if len(history) > 5 else history
+    }

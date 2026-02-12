@@ -4,6 +4,10 @@
 
 A GitHub CLI extension that transforms YouTube into a productivity tool by curating content and eliminating algorithmic distractions.
 
+![GitHub CLI](https://img.shields.io/badge/Built%20For-GitHub%20CLI-white?logo=github&style=for-the-badge)
+![Python](https://img.shields.io/badge/Made%20With-Python%20%2B%20Rich-yellow?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
 ---
 
 ## 🏆 GitHub CLI Challenge 2026
@@ -58,6 +62,7 @@ $ gh focus
 | **Context Categories** | Switch between Coding/Business/Learning modes |
 | **No Algorithm** | RSS feeds, not API recommendations |
 | **Distraction-Free Player** | MPV → VLC → Browser (all remove sidebars) |
+| **Learning Log (Gist Sync)** | Save great videos to a single GitHub Gist checklist |
 | **Watch History** | Track what you learned and when |
 | **Local-First** | Config stored locally, no tracking |
 
@@ -67,8 +72,15 @@ $ gh focus
 
 ### Prerequisites
 - GitHub CLI installed (`gh --version`)
+- Logged in to GitHub (`gh auth login`)
 - Python 3.7+
 - pip
+
+### Install as a GitHub CLI Extension
+
+```bash
+gh extension install YOUR_USERNAME/gh-focus
+```
 
 ### Quick Setup (Windows)
 
@@ -159,6 +171,17 @@ $ python gh-focus --stats
 Total learned: 3h 45m
 ```
 
+### 4. Save to Learning Log (Gist Sync)
+
+```bash
+? Action for: Docker in 100 Seconds
+    📺 Stream (Watch Now)
+    💾 Save to Learning Log
+    🔙 Cancel
+```
+
+When you save, `gh-focus` appends the video to a single GitHub Gist named `focus_learning_log.md` so your watch list follows you across machines.
+
 ---
 
 ## Pre-Configured Channels
@@ -222,7 +245,8 @@ gh-focus/
 2. **Fetch Videos** → Parse YouTube RSS feeds (real-time, no API)
 3. **Filter & Display** → Show latest videos from whitelist only
 4. **Launch Player** → Open in MPV/VLC/Browser (no sidebar)
-5. **Log Watch** → Track view in history (future feature)
+5. **Log Watch** → Track view in history
+6. **Sync Learning Log** → Append to a shared Gist via GitHub CLI
 
 ---
 
@@ -251,8 +275,9 @@ Easy to add: Pomodoro timer, progress tracking, channel auto-discovery, etc.
 - [x] Category-based filtering  
 - [x] Multiple player support (MPV, VLC, Browser)
 - [x] Beautiful CLI interface
-- [ ] Watch history tracking
-- [ ] Learning stats dashboard
+- [x] Watch history tracking
+- [x] Learning stats dashboard
+- [x] Learning Log Gist sync
 - [ ] Pomodoro timer integration
 - [ ] Auto-extract channel IDs from URLs
 - [ ] Sync channels via GitHub Gists

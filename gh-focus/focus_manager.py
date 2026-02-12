@@ -28,6 +28,17 @@ def save_config(data):
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
+def get_gist_id():
+    """Return the stored gist id, if any."""
+    data = load_config()
+    return data.get("gist_id")
+
+def save_gist_id(gist_id):
+    """Persist the gist id into config.json."""
+    data = load_config()
+    data["gist_id"] = gist_id
+    save_config(data)
+
 def add_channel(category, name, channel_id):
     """Add a channel to a specific category."""
     data = load_config()
