@@ -17,6 +17,9 @@ from rich.table import Table
 from focus_manager import load_config, add_channel, log_watch, get_watch_stats, get_gist_id, save_gist_id
 from fetcher import get_videos, resolve_channel_id
 
+# Tracks whether GitHub CLI is available for Gist sync features.
+GH_INSTALLED = False
+
 def check_dependencies():
     """Ensure yt-dlp is installed for ID resolution."""
     import importlib.util
@@ -33,22 +36,19 @@ def check_dependencies():
             sys.exit(1)
 
 def check_gh_auth():
-    """Checks if gh CLI is installed and logged in."""
+    """Checks if gh CLI is available (non-blocking)."""
+    global GH_INSTALLED
     try:
         subprocess.run(
-            ["gh", "auth", "status"],
+            ["gh", "--version"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=True
         )
+        GH_INSTALLED = True
         return True
-    except FileNotFoundError:
-        print("[bold red]❌ GitHub CLI (gh) is not installed![/bold red]")
-        print("Install it here: https://cli.github.com/")
-        return False
-    except subprocess.CalledProcessError:
-        print("[bold red]❌ You are not logged into GitHub![/bold red]")
-        print("Please run: [yellow]gh auth login[/yellow]")
+    except Exception:
+        GH_INSTALLED = False
         return False
 
 def save_to_learning_log(video_title, video_url):
@@ -282,7 +282,10 @@ def main():
     show_dashboard()
 
     if not check_gh_auth():
-        sys.exit(1)
+        print(Panel(
+            "[yellow]⚠️  GitHub CLI not found. 'Save to Gist' is disabled.[/yellow]",
+            border_style="yellow"
+        ))
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     local_mpv = os.path.join(script_dir, "mpv.exe")
@@ -409,13 +412,14 @@ def main():
             # Choose action for the selected video
             video_id = video_map[selected_text]
             video_data = video_info[selected_text]
+            action_choices = ["📺 Stream (Watch Now)"]
+            if GH_INSTALLED:
+                action_choices.append("💾 Save to Learning Log")
+            action_choices.append("🔙 Cancel")
+
             action = questionary.select(
                 f"Action for: {selected_text.split('|')[-1].strip()}",
-                choices=[
-                    "📺 Stream (Watch Now)",
-                    "💾 Save to Learning Log",
-                    "🔙 Cancel"
-                ]
+                choices=action_choices
             ).ask()
 
             if action == "📺 Stream (Watch Now)":
