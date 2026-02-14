@@ -29,6 +29,7 @@ vlc.exe
 # User-specific config and data
 config.json
 watch_history.json
+cover.png
 var/
 wheels/
 pip-wheel-metadata/
