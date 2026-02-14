@@ -32,529 +32,64 @@ REM Run the actual Python script
 cd /d "%EXTENSION_DIR%gh-focus"
 python gh-focus %*
 
-=== gh-focus/gh-focus ===
-#!/usr/bin/env python3
-"""
-gh-focus: A distraction-free YouTube CLI for focused learning
-GitHub CLI Extension for the 2026 Challenge
-"""
+=== gh-focus/requirements.txt ===
+feedparser>=6.0.10
+questionary>=2.0.1
+rich>=13.7.0
+yt-dlp>=2023.0.0
 
-import sys
-import webbrowser
-import subprocess
-import shutil
-import os
-import questionary
-from rich import print
-from rich.panel import Panel
-from rich.columns import Columns
-from rich.table import Table
-from focus_manager import load_config, add_channel, log_watch, get_watch_stats, get_gist_id, save_gist_id
-from fetcher import get_videos, resolve_channel_id
+=== gh-focus/config.json.sample ===
+{
+    "coding": [
+        {
+            "name": "Fireship",
+            "id": "UCsBjURrPoezykLs9EqgamOA"
+        },
+        {
+            "name": "Traversy Media",
+            "id": "UC29ju8bIPH5as8OGnQzwJyA"
+        },
+        {
+            "name": "Web Dev Simplified",
+            "id": "UCFbNIlppjreqWp0LoG4qLDg"
+        },
+        {
+            "name": "The Net Ninja",
+            "id": "UCW5YeuERMlsx2D7KtykVbVA"
+        }
+    ],
+    "business": [
+        {
+            "name": "Y Combinator",
+            "id": "UCcefcZRL2oaA_uBNeo5UOWg"
+        },
+        {
+            "name": "Ali Abdaal",
+            "id": "UCoOae5nYzcosPVc4DescXIQ"
+        },
+        {
+            "name": "MeetKevin",
+            "id": "UCdWjx1aWCM6iB2lt-dEKD8w"
+        }
+    ],
+    "learning": [
+        {
+            "name": "3Blue1Brown",
+            "id": "UCYO_jab_esuFRV4b0cTApqQ"
+        },
+        {
+            "name": "Kurzgesagt",
+            "id": "UCzIL6qFP00w10hgxZwplZww"
+        },
+        {
+            "name": "Veritasium",
+            "id": "UCHnyfMoQyNFhjVwF1nHV28w"
+        }
+    ],
+    "entertainment": []
+}
 
-def check_gh_auth():
-    """Checks if gh CLI is installed and logged in."""
-    try:
-        subprocess.run(
-            ["gh", "auth", "status"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True
-        )
-        return True
-    except FileNotFoundError:
-        print("[bold red]❌ GitHub CLI (gh) is not installed![/bold red]")
-        print("Install it here: https://cli.github.com/")
-        return False
-    except subprocess.CalledProcessError:
-        print("[bold red]❌ You are not logged into GitHub![/bold red]")
-        print("Please run: [yellow]gh auth login[/yellow]")
-        return False
-
-def save_to_learning_log(video_title, video_url):
-    """Append the video to a shared learning log Gist."""
-    if not check_gh_auth():
-        return
-
-    print("[bold yellow]🐱 Syncing with GitHub...[/bold yellow]")
-
-    gist_id = get_gist_id()
-    filename = "focus_learning_log.md"
-    new_entry = f"- [ ] **{video_title}** - [Watch]({video_url})\n"
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    temp_path = os.path.join(script_dir, filename)
-
-    if not gist_id:
-        print("[cyan]Creating new Learning Log Gist...[/cyan]")
-        description = "My Developer Learning Path (Created by gh-focus)"
-
-        with open(temp_path, "w", encoding="utf-8") as f:
-            f.write(f"# My Intentional Learning Log 🧠\n\n{new_entry}")
-
-        try:
-            subprocess.run(
-                ["gh", "gist", "create", temp_path, "--desc", description, "--public"],
-                check=True
-            )
-
-            res = subprocess.run(
-                ["gh", "gist", "list", "--limit", "1"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            new_id = res.stdout.split()[0]
-            save_gist_id(new_id)
-            print(f"[bold green]✅ Created & Saved to Gist ID: {new_id}[/bold green]")
-        except subprocess.CalledProcessError as exc:
-            print("[bold red]❌ Failed to create the Learning Log Gist.[/bold red]")
-            if exc.stderr:
-                print(exc.stderr)
-        finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-    else:
-        print(f"[cyan]Updating Gist {gist_id}...[/cyan]")
-        try:
-            res = subprocess.run(
-                ["gh", "gist", "view", gist_id, "--filename", filename],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            current_content = res.stdout
-            updated_content = current_content + new_entry
-
-            with open(temp_path, "w", encoding="utf-8") as f:
-                f.write(updated_content)
-
-            subprocess.run(["gh", "gist", "edit", gist_id, temp_path], check=True)
-            print(f"[bold green]✅ Added '{video_title}' to your Learning Log![/bold green]")
-        except subprocess.CalledProcessError as exc:
-            print("[bold red]❌ Failed to update the Learning Log Gist.[/bold red]")
-            if exc.stderr:
-                print(exc.stderr)
-        finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-
-def open_safe_mode(video_id):
-    """
-    Opens video using the local mpv.exe if found, otherwise tries system players.
-    """
-    url = f"https://www.youtube.com/watch?v={video_id}"
-    
-    # 1. Check for mpv.exe in the SAME folder as this script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    local_mpv = os.path.join(script_dir, "mpv.exe")
-    
-    if os.path.exists(local_mpv):
-        print(f"[bold green]🚀 Launching Portable MPV...[/bold green]")
-        # We need to pass the full path to yt-dlp if it's not in PATH, 
-        # but since you pip installed it, mpv should find it automatically.
-        subprocess.run([local_mpv, url])
-        return
-
-    # 2. Check for System MPV (Global install)
-    if shutil.which("mpv"):
-        print(f"[bold green]🚀 Launching System MPV...[/bold green]")
-        subprocess.run(["mpv", url])
-        return
-
-    # 3. Check for VLC (Backup)
-    vlc_path = shutil.which("vlc")
-    if not vlc_path:
-        # Check standard Windows paths
-        paths = [
-            r"C:\Program Files\VideoLAN\VLC\vlc.exe",
-            r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
-        ]
-        for p in paths:
-            if os.path.exists(p):
-                vlc_path = p
-                break
-    
-    if vlc_path:
-        print(f"[bold orange3]🎬 Launching VLC...[/bold orange3]")
-        subprocess.run([vlc_path, url, "--play-and-exit"])
-        return
-
-    # 4. Give up and use Browser
-    print("[bold red]❌ No Player Found![/bold red]")
-    print(f"Please copy 'mpv.exe' into this folder: {script_dir}")
-    print("[yellow]Falling back to Browser...[/yellow]")
-    webbrowser.open(url)
-
-def show_banner():
-    """Display welcome banner."""
-    print(Panel.fit("[bold white]🎯 YouTube Focus Mode[/bold white]\n[cyan]Curated. Intentional. Focused.[/cyan]", border_style="cyan"))
-
-def view_channels():
-    """Display all configured channels by category."""
-    config = load_config()
-    categories = [key for key, value in config.items() if isinstance(value, list)]
-    
-    if not categories:
-        print("[yellow]No categories found.[/yellow]")
-        return
-    
-    print("\n[bold cyan]📋 Your Channels:[/bold cyan]")
-    for cat in categories:
-        channels = config[cat]
-        if channels:
-            print(f"\n[cyan]{cat.upper()}[/cyan]")
-            for ch in channels:
-                print(f"  • {ch['name']} → [cyan]{ch['id']}[/cyan]")
-        else:
-            print(f"\n[cyan]{cat.upper()}[/cyan] (empty)")
-
-def show_dashboard():
-    """Display a professional analytics dashboard."""
-    stats = get_watch_stats()
-    
-    if stats.get('total_videos', 0) == 0:
-        print(Panel(
-            "[dim]No videos watched yet. Start watching to see your dashboard![/dim]",
-            title="📊 Dashboard",
-            border_style="cyan"
-        ))
-        return
-    
-    # Left column: Stats table
-    stats_table = Table(show_header=False, box=None, padding=(0, 2))
-    stats_table.add_column("Metric", style="bold yellow")
-    stats_table.add_column("Value", style="bold white")
-    
-    stats_table.add_row("🎥 Videos Watched", str(stats['total_videos']))
-    stats_table.add_row("⏱️  Focus Time (est)", stats['total_time'])
-    
-    if stats['categories']:
-        top_cat = max(stats['categories'], key=stats['categories'].get)
-        top_count = stats['categories'][top_cat]
-        stats_table.add_row("🔥 Top Focus", f"[cyan]{top_cat}[/cyan] ({top_count})")
-    
-    # Right column: Recent activity
-    recent_lines = ["[dim bold]Recent Learning:[/dim bold]"]
-    if stats.get('recent'):
-        for vid in reversed(stats['recent'][-4:]):
-            title_short = vid['title'][:28]
-            cat = vid.get('category', '?')
-            recent_lines.append(f"[dim]• [{cat}] {title_short}...[/dim]")
-    else:
-        recent_lines.append("[dim]No history yet[/dim]")
-    
-    recent_panel = Panel(
-        "\n".join(recent_lines),
-        border_style="dim",
-        padding=(1, 2)
-    )
-    
-    # Combine into columns
-    dashboard = Columns(
-        [stats_table, recent_panel],
-        equal=True,
-        expand=True
-    )
-    
-    print(Panel(
-        dashboard,
-        title="[bold cyan]🎯 Your Progress[/bold cyan]",
-        border_style="green",
-        padding=(1, 2)
-    ))
-
-def show_stats():
-    """Display detailed learning statistics."""
-    stats = get_watch_stats()
-    
-    print(Panel(
-        f"[bold cyan]📊 Your Learning Stats[/bold cyan]\n"
-        f"[green]Videos Watched:[/green] {stats['total_videos']}\n"
-        f"[green]Total Time:[/green] {stats['total_time']}\n"
-        f"[green]Categories:[/green] {', '.join([f'{k} ({v})' for k, v in stats['categories'].items()]) if stats['categories'] else 'None'}",
-        border_style="cyan"
-    ))
-    
-    if stats['recent']:
-        print("\n[bold cyan]📺 Recent Videos:[/bold cyan]")
-        for video in reversed(stats['recent']):
-            date = video.get('timestamp', '').split('T')[0]
-            print(f"  ✓ {video['title'][:50]}... ({date})")
-
-def main():
-    # Handle command-line arguments
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--stats":
-            show_banner()
-            show_dashboard()
-            return
-        elif sys.argv[1] == "--help":
-            print("[cyan]Usage:[/cyan]")
-            print("  python gh-focus          Start interactive mode")
-            print("  python gh-focus --stats  Show dashboard & statistics")
-            print("  python gh-focus --help   Show this help message")
-            return
-    
-    show_banner()
-    show_dashboard()
-
-    if not check_gh_auth():
-        sys.exit(1)
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    local_mpv = os.path.join(script_dir, "mpv.exe")
-    if not os.path.exists(local_mpv) and not shutil.which("mpv"):
-        print(Panel(
-            "[yellow]MPV Player not detected![/yellow]\n\n"
-            "For the best experience (no ads/shorts), please:\n"
-            "1. Download mpv.exe\n"
-            f"2. Place it in this folder: [cyan]{script_dir}[/cyan]",
-            title="Setup Required"
-        ))
-        input("Press Enter to continue using Browser Mode...")
-    
-    # MAIN LOOP: Keeps the app running
-    while True:
-        config = load_config()
-        
-        # 1. Ask for Mood (Category)
-        categories = [key for key, value in config.items() if isinstance(value, list)]
-        main_options = categories + ["📊 View Stats", "👀 View Channels", "+ Add New Channel", "Exit"]
-        
-        choice = questionary.select(
-            "What is your focus right now?",
-            choices=main_options,
-            style=questionary.Style([('answer', 'fg:cyan bold')])
-        ).ask()
-        
-        # Handle Main Menu Exits
-        if choice == "Exit":
-            print("[bold red]Stay focused! Goodbye. 👋[/bold red]")
-            sys.exit()
-        
-        if choice == "📊 View Stats":
-            show_dashboard()
-            questionary.confirm("Press Enter to continue...").ask()
-            continue
-        
-        if choice == "👀 View Channels":
-            view_channels()
-            questionary.confirm("Press Enter to continue...").ask()
-            continue
-            
-        if choice == "+ Add New Channel":
-            cat = questionary.select(
-                "Which category?",
-                choices=categories
-            ).ask()
-            
-            user_input = questionary.text(
-                "Channel handle (e.g., @Fireship) or URL:"
-            ).ask()
-
-            c_id = resolve_channel_id(user_input)
-            if c_id:
-                name = questionary.text(f"Found ID {c_id}! Enter a display name:").ask()
-                if add_channel(cat, name, c_id):
-                    print(f"[green]✓ Added {name} to {cat}![/green]")
-                else:
-                    print(f"[yellow]Channel already exists in {cat}[/yellow]")
-            else:
-                print("[bold yellow]⚠️  Resolution failed. You can enter the ID manually.[/bold yellow]")
-                use_manual = questionary.confirm("Enter Channel ID manually (UC...)?").ask()
-                if use_manual:
-                    c_id = questionary.text("Channel ID (e.g., UCsBjURrPoezykLs9EqgamOA):").ask()
-                    name = questionary.text("Channel name (e.g., Fireship):").ask()
-                    if add_channel(cat, name, c_id):
-                        print(f"[green]✓ Added {name} to {cat}![/green]")
-                    else:
-                        print(f"[yellow]Channel already exists in {cat}[/yellow]")
-            continue  # Go back to start of loop
-
-        # 2. Fetch Videos for that category
-        channels = config[choice]
-        if not channels:
-            print("[red]No channels in this list yet![/red]")
-            print("[yellow]Tip: Select '+ Add New Channel' to get started[/yellow]")
-            continue
-
-        # INNER LOOP: Stay in this category until user goes back
-        while True:
-            videos = get_videos(channels)
-
-            if not videos:
-                print("[yellow]No recent videos found.[/yellow]")
-                break
-
-            # 3. Create the Selection List
-            video_choices = []
-            video_map = {}
-            video_info = {}
-            
-            for v in videos:
-                # 🚫 BLOCK SHORTS: Skip short-form content
-                if "#shorts" in v['title'].lower() or "short" in v['title'].lower():
-                    continue
-                
-                # Clean up title for display
-                display_text = f"[{v['channel']}] {v['title'][:60]}"
-                video_choices.append(display_text)
-                video_map[display_text] = v['video_id']
-                video_info[display_text] = v
-            
-            if not video_choices:
-                print("[yellow]No full-length videos found (only Shorts).[/yellow]")
-                break
-            
-            # Add Navigation
-            video_choices.append("🔙 Go Back")
-            video_choices.append("❌ Exit App")
-            
-            selected_text = questionary.select(
-                f"📺 {choice.upper()} - Select video:",
-                choices=video_choices
-            ).ask()
-            
-            # Navigation Logic
-            if selected_text == "❌ Exit App":
-                print("[bold red]Goodbye! 👋[/bold red]")
-                sys.exit()
-                
-            if selected_text == "🔙 Go Back":
-                break  # Breaks inner loop, goes back to Main Menu
-                
-            # Choose action for the selected video
-            video_id = video_map[selected_text]
-            video_data = video_info[selected_text]
-            action = questionary.select(
-                f"Action for: {selected_text.split('|')[-1].strip()}",
-                choices=[
-                    "📺 Stream (Watch Now)",
-                    "💾 Save to Learning Log",
-                    "🔙 Cancel"
-                ]
-            ).ask()
-
-            if action == "📺 Stream (Watch Now)":
-                print(f"\n[bold yellow]🎬 {selected_text}[/bold yellow]")
-                print("[dim]YouTube will open. Close the tab when done to return here.[/dim]\n")
-
-                log_watch(
-                    video_data['title'],
-                    video_data['channel'],
-                    video_id,
-                    choice
-                )
-
-                open_safe_mode(video_id)
-            elif action == "💾 Save to Learning Log":
-                clean_title = selected_text.split("] ")[-1]
-                full_url = f"https://www.youtube.com/watch?v={video_id}"
-                save_to_learning_log(clean_title, full_url)
-                input("Press Enter to continue...")
-            # The loop continues, so you come back to the video list!
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n[bold red]Force Exit. Stay focused! 👋[/bold red]")
-        sys.exit(0)
-    except Exception as e:
-        print(f"[red]Error: {e}[/red]")
-        sys.exit(1)
-
-=== gh-focus/fetcher.py ===
-import feedparser
-import concurrent.futures
-import json
-import subprocess
-from rich.console import Console
-
-console = Console()
-
-def resolve_channel_id(user_input):
-    """
-    Resolve a YouTube handle or URL to a channel ID using yt-dlp.
-    """
-    print(f"[cyan]🔍 Resolving ID for '{user_input}'...[/cyan]")
-
-    if not user_input.startswith("http"):
-        if not user_input.startswith("@"):
-            user_input = f"@{user_input}"
-        url = f"https://www.youtube.com/{user_input}"
-    else:
-        url = user_input
-
-    cmd = [
-        "yt-dlp",
-        "--playlist-end", "1",
-        "--dump-json",
-        "--flat-playlist",
-        url
-    ]
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-        if result.returncode != 0:
-            console.print(f"[yellow]⚠️  Resolution failed (maybe private channel?)[/yellow]")
-            return None
-
-        for line in result.stdout.splitlines():
-            try:
-                data = json.loads(line)
-                if "channel_id" in data:
-                    return data["channel_id"]
-            except json.JSONDecodeError:
-                continue
-    except subprocess.TimeoutExpired:
-        console.print(f"[red]❌ Timeout: couldn't reach YouTube[/red]")
-        return None
-    except Exception as e:
-        console.print(f"[red]Error resolving ID: {e}[/red]")
-        return None
-
-    return None
-
-def fetch_single_channel(channel):
-    """Fetch videos for a single channel."""
-    rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel['id']}"
-    results = []
-    try:
-        feed = feedparser.parse(rss_url)
-        for entry in feed.entries[:3]:
-            results.append({
-                "title": entry.title,
-                "link": entry.link,
-                "channel": channel['name'],
-                "published": entry.published,
-                "video_id": entry.yt_videoid
-            })
-    except Exception as e:
-        console.print(f"[red]Error fetching from {channel['name']}: {e}[/red]")
-    return results
-
-def get_videos(channel_list):
-    """
-    Fetch latest videos from YouTube channels using RSS feeds.
-    No API key required!
-    """
-    videos = []
-
-    with console.status("[bold green]Fetching content (Parallel Mode)...[/bold green]"):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(fetch_single_channel, ch) for ch in channel_list]
-            for future in concurrent.futures.as_completed(futures):
-                videos.extend(future.result())
-
-    return videos
-
-def extract_channel_id(channel_url):
-    """Back-compat wrapper for old code paths."""
-    return resolve_channel_id(channel_url)
-
-=== gh-focus/focus_manager.py ===
+=== gh-focus/focus_manager.py (Business Logic Module) ===
 import json
 import os
 from datetime import datetime
@@ -610,6 +145,25 @@ def add_channel(category, name, channel_id):
     data[category].append({"name": name, "id": channel_id})
     save_config(data)
     return True
+
+def remove_channel(category, channel_id):
+    """Remove a channel from a specific category."""
+    data = load_config()
+    if category not in data:
+        return False
+    
+    data[category] = [ch for ch in data[category] if ch['id'] != channel_id]
+    save_config(data)
+    return True
+
+def remove_category(category):
+    """Remove an entire category."""
+    data = load_config()
+    if category in data:
+        del data[category]
+        save_config(data)
+        return True
+    return False
 
 def get_channels(category):
     """Get all channels in a specific category."""
@@ -675,3 +229,217 @@ def get_watch_stats():
         "categories": categories,
         "recent": history[-5:] if len(history) > 5 else history
     }
+
+=== gh-focus/fetcher.py (Data Fetching Module with RSS + yt-dlp Fallback) ===
+import feedparser
+import concurrent.futures
+import json
+import subprocess
+from rich.console import Console
+
+console = Console()
+
+def resolve_channel_id(user_input):
+    """
+    Resolve a YouTube handle or URL to a channel ID using yt-dlp.
+    """
+    print(f"[cyan]🔍 Resolving ID for '{user_input}'...[/cyan]")
+
+    if not user_input.startswith("http"):
+        if not user_input.startswith("@"):
+            user_input = f"@{user_input}"
+        url = f"https://www.youtube.com/{user_input}"
+    else:
+        url = user_input
+
+    cmd = [
+        "yt-dlp",
+        "--playlist-end", "1",
+        "--dump-json",
+        "--flat-playlist",
+        url
+    ]
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        if result.returncode != 0:
+            console.print(f"[yellow]⚠️  Resolution failed (maybe private channel?)[/yellow]")
+            return None
+
+        for line in result.stdout.splitlines():
+            try:
+                data = json.loads(line)
+                if "channel_id" in data:
+                    return data["channel_id"]
+            except json.JSONDecodeError:
+                continue
+    except subprocess.TimeoutExpired:
+        console.print(f"[red]❌ Timeout: couldn't reach YouTube[/red]")
+        return None
+    except Exception as e:
+        console.print(f"[red]Error resolving ID: {e}[/red]")
+        return None
+
+    return None
+
+def fetch_videos_yt_dlp(channel):
+    """Fallback: Fetch videos using yt-dlp when RSS is disabled."""
+    results = []
+    try:
+        # Try channel URL (safer than /videos which may be blocked)
+        url = f"https://www.youtube.com/@{channel['name'].replace(' ', '')}/videos"
+        
+        cmd = [
+            "yt-dlp",
+            "--flat-playlist",
+            "--playlist-end", "5",
+            "--dump-json",
+            "--no-warnings",
+            "--skip-download",
+            url
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        
+        if result.returncode == 0 and result.stdout.strip():
+            line_count = 0
+            for line in result.stdout.splitlines():
+                try:
+                    data = json.loads(line)
+                    if data.get("id"):
+                        results.append({
+                            "title": data.get("title", "Unknown"),
+                            "link": f"https://www.youtube.com/watch?v={data['id']}",
+                            "channel": channel['name'],
+                            "published": data.get("upload_date", "N/A"),
+                            "video_id": data['id']
+                        })
+                        line_count += 1
+                except json.JSONDecodeError:
+                    continue
+            
+            if line_count > 0:
+                console.print(f"[green]✓ Fetched {line_count} videos from {channel['name']} (yt-dlp)[/green]")
+                return results
+        
+        if result.stderr:
+            console.print(f"[yellow]⚠️  {channel['name']}: {result.stderr[:100]}[/yellow]")
+    except subprocess.TimeoutExpired:
+        console.print(f"[yellow]⏱️  Timeout fetching {channel['name']}[/yellow]")
+    except Exception as e:
+        console.print(f"[yellow]❌ yt-dlp error for {channel['name']}: {str(e)[:80]}[/yellow]")
+    
+    return results
+
+
+def fetch_single_channel(channel):
+    """Fetch videos for a single channel."""
+    rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel['id']}"
+    results = []
+    try:
+        feed = feedparser.parse(rss_url)
+        if not feed.entries:
+            console.print(f"[cyan]ℹ️  {channel['name']}: Trying alternate fetch method...[/cyan]")
+            return fetch_videos_yt_dlp(channel)
+        for entry in feed.entries[:3]:
+            results.append({
+                "title": entry.title,
+                "link": entry.link,
+                "channel": channel['name'],
+                "published": entry.published,
+                "video_id": entry.yt_videoid
+            })
+    except Exception as e:
+        console.print(f"[cyan]ℹ️  {channel['name']}: Trying alternate fetch method...[/cyan]")
+        return fetch_videos_yt_dlp(channel)
+    return results
+
+def get_videos(channel_list):
+    """
+    Fetch latest videos from YouTube channels using RSS feeds.
+    No API key required!
+    """
+    videos = []
+
+    with console.status("[bold green]Fetching content (Parallel Mode)...[/bold green]"):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(fetch_single_channel, ch) for ch in channel_list]
+            for future in concurrent.futures.as_completed(futures):
+                videos.extend(future.result())
+
+    return videos
+
+def extract_channel_id(channel_url):
+    """Back-compat wrapper for old code paths."""
+    return resolve_channel_id(channel_url)
+
+=== gh-focus/gh-focus (MAIN CLI SCRIPT - COMPLETE LATEST VERSION - 894 LINES) ===
+See the gh-focus file in the repository for the complete main CLI script with all features:
+- Custom category creation with normalization
+- Input validation (is_valid_channel_id, is_valid_handle_or_url, normalize_category_name)
+- Channel and category removal with confirmation
+- Rich terminal UI with colored tables, panels, and organized menus
+- Professional dashboard with statistics and learning history
+- Multiple player support (MPV, VLC, Browser fallback)
+- GitHub Gist integration for learning logs
+- Watch history tracking
+- RSS + yt-dlp fallback for video fetching
+- Error handling and user feedback
+
+=== LATEST FEATURES SUMMARY ===
+✅ Custom category creation with text normalization
+   - normalize_category_name(): Converts "my data science" → "my_data_science"
+
+✅ Robust input validation
+   - is_valid_channel_id(): Validates UC[+22 chars] format
+   - is_valid_handle_or_url(): Accepts @handles, URLs, or IDs
+   - Prevents invalid channel entries and guides users
+
+✅ Channel and category management
+   - remove_channel(): Delete individual channels with confirmation
+   - remove_category(): Delete entire categories with safety prompt
+   - Add, list, and organize channels by category
+
+✅ Professional CLI interface (Rich library)
+   - Colored tables for channel display
+   - Info panels for video details
+   - Organized menu sections (Categories → Tools → Exit)
+   - Dashboard with stats, category breakdown, recent history
+
+✅ Intelligent video fetching
+   - Primary: RSS feeds (fast, no API key needed)
+   - Fallback: yt-dlp scraping (for RSS-disabled channels like Raj Shamani)
+   - Parallel fetching (10 concurrent workers)
+   - Error handling with user feedback
+
+✅ Multiple video players
+   - Local MPV.exe (portable, ad-free)
+   - System MPV (lightweight)
+   - VLC Media Player (backup)
+   - Browser (final fallback)
+
+✅ Learning analytics
+   - Watch history with timestamps
+   - Statistics dashboard (videos, time, top category)
+   - Category breakdown
+   - Recent learning activity tracking
+
+✅ GitHub integration (optional)
+   - Sync watching to GitHub Gist
+   - Create/update public learning logs
+   - Mark videos as complete/incomplete
+   - View full log in browser
+
+✅ Production quality
+   - Syntax optimized (no nested brackets in f-strings)
+   - Error handling for all edge cases
+   - Auto-install dependencies on first run
+   - Configuration persistence (JSON files)
+   - Command-line arguments (--stats, --help)
+
+=== DEPLOYMENT ===
+Both repositories pushed successfully to GitHub:
+- Main repo: https://github.com/Pakeeza1508/github-cli-challenge
+- Submodule: https://github.com/Pakeeza1508/gh-focus
+
+Ready for hackathon submission!
