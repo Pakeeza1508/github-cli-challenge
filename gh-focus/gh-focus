@@ -262,6 +262,60 @@ def show_stats():
             date = video.get('timestamp', '').split('T')[0]
             print(f"  ✓ {video['title'][:50]}... ({date})")
 
+def view_learning_log():
+    """Fetch and display the Learning Log from Gist."""
+    if not GH_INSTALLED:
+        print(Panel(
+            "[yellow]⚠️  GitHub CLI not available. Cannot access Learning Log.[/yellow]",
+            border_style="yellow"
+        ))
+        return
+    
+    gist_id = get_gist_id()
+    
+    if not gist_id:
+        print(Panel(
+            "[yellow]📚 No Learning Log found yet.[/yellow]\n\n"
+            "Save your first video to create one!",
+            border_style="yellow",
+            title="Learning Log"
+        ))
+        return
+    
+    # Fetch gist content
+    filename = "focus_learning_log.md"
+    try:
+        result = subprocess.run(
+            ["gh", "gist", "view", gist_id, "--filename", filename],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        content = result.stdout
+        
+        # Display in terminal
+        print(Panel(
+            content,
+            title="[bold cyan]📚 Your Learning Log[/bold cyan]",
+            border_style="cyan",
+            padding=(1, 2)
+        ))
+        
+        # Offer to open in browser
+        gist_url = f"https://gist.github.com/{gist_id}"
+        open_browser = questionary.confirm(
+            f"Open in browser? ({gist_url})"
+        ).ask()
+        
+        if open_browser:
+            webbrowser.open(gist_url)
+            print("[green]✓ Opened in browser[/green]")
+            
+    except subprocess.CalledProcessError:
+        print("[red]❌ Failed to fetch Learning Log[/red]")
+    except Exception as e:
+        print(f"[red]Error: {e}[/red]")
+
 def main():
     check_dependencies()  # Auto-install yt-dlp on first run
     
@@ -305,7 +359,7 @@ def main():
         
         # 1. Ask for Mood (Category)
         categories = [key for key, value in config.items() if isinstance(value, list)]
-        main_options = categories + ["📊 View Stats", "👀 View Channels", "+ Add New Channel", "Exit"]
+        main_options = categories + ["📊 View Stats", "� View Learning Log", "�👀 View Channels", "+ Add New Channel", "Exit"]
         
         choice = questionary.select(
             "What is your focus right now?",
@@ -323,7 +377,12 @@ def main():
             questionary.confirm("Press Enter to continue...").ask()
             continue
         
-        if choice == "👀 View Channels":
+        if choice == "� View Learning Log":
+            view_learning_log()
+            questionary.confirm("Press Enter to continue...").ask()
+            continue
+        
+        if choice == "�👀 View Channels":
             view_channels()
             questionary.confirm("Press Enter to continue...").ask()
             continue
