@@ -15,9 +15,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Change to the script directory
+REM Change to the script directory and run the Python script
 cd /d "%SCRIPT_DIR%"
-
-REM Run the Python script with all arguments passed through
-python gh-focus %*
+python "%SCRIPT_DIR%gh-focus.py" %*
 exit /b %errorlevel%

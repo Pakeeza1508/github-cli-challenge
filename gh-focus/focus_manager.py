@@ -1,9 +1,11 @@
 import json
 import os
+import shutil
 from datetime import datetime
 
 # Where we store data
 CONFIG_FILE = "config.json"
+CONFIG_SAMPLE = "config.json.sample"
 HISTORY_FILE = "watch_history.json"
 
 # Default structure
@@ -16,10 +18,15 @@ DEFAULT_CONFIG = {
 def load_config():
     """Load configuration from JSON file, create if doesn't exist."""
     if not os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, "w") as f:
-            json.dump(DEFAULT_CONFIG, f, indent=4)
-        return DEFAULT_CONFIG
-    
+        # Check if sample config exists and copy it
+        if os.path.exists(CONFIG_SAMPLE):
+            shutil.copy(CONFIG_SAMPLE, CONFIG_FILE)
+            print("[green]✓ Initialized with sample channels. Customize as needed![/green]")
+        else:
+            # Create minimal config if no sample available
+            with open(CONFIG_FILE, "w") as f:
+                json.dump(DEFAULT_CONFIG, f, indent=4)
+        
     with open(CONFIG_FILE, "r") as f:
         return json.load(f)
 
