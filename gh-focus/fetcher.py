@@ -28,8 +28,9 @@ def resolve_channel_id(user_input):
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
         if result.returncode != 0:
+            console.print(f"[yellow]⚠️  Resolution failed (maybe private channel?)[/yellow]")
             return None
 
         for line in result.stdout.splitlines():
@@ -39,6 +40,9 @@ def resolve_channel_id(user_input):
                     return data["channel_id"]
             except json.JSONDecodeError:
                 continue
+    except subprocess.TimeoutExpired:
+        console.print(f"[red]❌ Timeout: couldn't reach YouTube[/red]")
+        return None
     except Exception as e:
         console.print(f"[red]Error resolving ID: {e}[/red]")
         return None
