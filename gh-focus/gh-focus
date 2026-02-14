@@ -412,34 +412,42 @@ def main():
             # Choose action for the selected video
             video_id = video_map[selected_text]
             video_data = video_info[selected_text]
-            action_choices = ["📺 Stream (Watch Now)"]
-            if GH_INSTALLED:
-                action_choices.append("💾 Save to Learning Log")
-            action_choices.append("🔙 Cancel")
+            
+            # ACTION LOOP: Allow user to watch AND save without reselecting video
+            while True:
+                action_choices = ["📺 Stream (Watch Now)"]
+                if GH_INSTALLED:
+                    action_choices.append("💾 Save to Learning Log")
+                action_choices.append("🔙 Cancel")
 
-            action = questionary.select(
-                f"Action for: {selected_text.split('|')[-1].strip()}",
-                choices=action_choices
-            ).ask()
+                action = questionary.select(
+                    f"Action for: {selected_text.split('|')[-1].strip()}",
+                    choices=action_choices
+                ).ask()
 
-            if action == "📺 Stream (Watch Now)":
-                print(f"\n[bold yellow]🎬 {selected_text}[/bold yellow]")
-                print("[dim]YouTube will open. Close the tab when done to return here.[/dim]\n")
+                if action == "🔙 Cancel":
+                    break  # Go back to video list
+                    
+                if action == "📺 Stream (Watch Now)":
+                    print(f"\n[bold yellow]🎬 {selected_text}[/bold yellow]")
+                    print("[dim]YouTube will open. Close the tab when done to return here.[/dim]\n")
 
-                log_watch(
-                    video_data['title'],
-                    video_data['channel'],
-                    video_id,
-                    choice
-                )
+                    log_watch(
+                        video_data['title'],
+                        video_data['channel'],
+                        video_id,
+                        choice
+                    )
 
-                open_safe_mode(video_id)
-            elif action == "💾 Save to Learning Log":
-                clean_title = selected_text.split("] ")[-1]
-                full_url = f"https://www.youtube.com/watch?v={video_id}"
-                save_to_learning_log(clean_title, full_url)
-                input("Press Enter to continue...")
-            # The loop continues, so you come back to the video list!
+                    open_safe_mode(video_id)
+                    # Loop continues - user can now save it too
+                    
+                elif action == "💾 Save to Learning Log":
+                    clean_title = selected_text.split("] ")[-1]
+                    full_url = f"https://www.youtube.com/watch?v={video_id}"
+                    save_to_learning_log(clean_title, full_url)
+                    input("Press Enter to continue...")
+                    # Loop continues - user can watch it too
 
 if __name__ == "__main__":
     try:
