@@ -49,12 +49,65 @@ def resolve_channel_id(user_input):
 
     return None
 
+def fetch_videos_yt_dlp(channel):
+    """Fallback: Fetch videos using yt-dlp when RSS is disabled."""
+    results = []
+    try:
+        # Try channel URL (safer than /videos which may be blocked)
+        url = f"https://www.youtube.com/@{channel['name'].replace(' ', '')}/videos"
+        
+        cmd = [
+            "yt-dlp",
+            "--flat-playlist",
+            "--playlist-end", "5",
+            "--dump-json",
+            "--no-warnings",
+            "--skip-download",
+            url
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        
+        if result.returncode == 0 and result.stdout.strip():
+            line_count = 0
+            for line in result.stdout.splitlines():
+                try:
+                    data = json.loads(line)
+                    if data.get("id"):
+                        results.append({
+                            "title": data.get("title", "Unknown"),
+                            "link": f"https://www.youtube.com/watch?v={data['id']}",
+                            "channel": channel['name'],
+                            "published": data.get("upload_date", "N/A"),
+                            "video_id": data['id']
+                        })
+                        line_count += 1
+                except json.JSONDecodeError:
+                    continue
+            
+            if line_count > 0:
+                console.print(f"[green]✓ Fetched {line_count} videos from {channel['name']} (yt-dlp)[/green]")
+                return results
+        
+        if result.stderr:
+            console.print(f"[yellow]⚠️  {channel['name']}: {result.stderr[:100]}[/yellow]")
+    except subprocess.TimeoutExpired:
+        console.print(f"[yellow]⏱️  Timeout fetching {channel['name']}[/yellow]")
+    except Exception as e:
+        console.print(f"[yellow]❌ yt-dlp error for {channel['name']}: {str(e)[:80]}[/yellow]")
+    
+    return results
+
+
 def fetch_single_channel(channel):
     """Fetch videos for a single channel."""
     rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel['id']}"
     results = []
     try:
         feed = feedparser.parse(rss_url)
+        if not feed.entries:
+            console.print(f"[cyan]ℹ️  {channel['name']}: Trying alternate fetch method...[/cyan]")
+            return fetch_videos_yt_dlp(channel)
         for entry in feed.entries[:3]:
             results.append({
                 "title": entry.title,
@@ -64,7 +117,8 @@ def fetch_single_channel(channel):
                 "video_id": entry.yt_videoid
             })
     except Exception as e:
-        console.print(f"[red]Error fetching from {channel['name']}: {e}[/red]")
+        console.print(f"[cyan]ℹ️  {channel['name']}: Trying alternate fetch method...[/cyan]")
+        return fetch_videos_yt_dlp(channel)
     return results
 
 def get_videos(channel_list):

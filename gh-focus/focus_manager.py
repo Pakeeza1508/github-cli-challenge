@@ -54,6 +54,25 @@ def add_channel(category, name, channel_id):
     save_config(data)
     return True
 
+def remove_channel(category, channel_id):
+    """Remove a channel from a specific category."""
+    data = load_config()
+    if category not in data:
+        return False
+    
+    data[category] = [ch for ch in data[category] if ch['id'] != channel_id]
+    save_config(data)
+    return True
+
+def remove_category(category):
+    """Remove an entire category."""
+    data = load_config()
+    if category in data:
+        del data[category]
+        save_config(data)
+        return True
+    return False
+
 def get_channels(category):
     """Get all channels in a specific category."""
     data = load_config()

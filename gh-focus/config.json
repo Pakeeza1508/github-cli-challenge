@@ -1,136 +1,497 @@
 {
-  "coding": [
-    { "name": "Fireship", "id": "UCsBjURrPoezykLs9EqgamOA" },
-    { "name": "Traversy Media", "id": "UC29ju8bIPH5as8OGnQzwJyA" },
-    { "name": "freeCodeCamp.org", "id": "UC8butISFwT-Wl7EV0hUK0BQ" },
-    { "name": "The Net Ninja", "id": "UCFbNIlppjAuEX4znoulh0Cw" },
-    { "name": "Corey Schafer", "id": "UCCezIgC97PvUuR4_gbFUs5g" },
-    { "name": "Tech With Tim", "id": "UC4JX40jDee_tINbkjycV4Sg" },
-    { "name": "Google Developers", "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw" },
-    { "name": "MIT OpenCourseWare", "id": "UCYO_jab_esuFRV4b17AJtAw" }
-  ],
-  "business": [
-    { "name": "Y Combinator", "id": "UCcefcZRL2oaA_uBNeo5UOWg" },
-    { "name": "TED", "id": "UCAuUUnT6oDeKwE6v1NGQxug" },
-    { "name": "Harvard Business Review", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Stanford Graduate School of Business", "id": "UC-b3c7kxa5vU-bnmaROgvog" },
-    { "name": "CNBC", "id": "UCvJJ_dzjViJCoLf5uKUTwoA" },
-    { "name": "The Wall Street Journal", "id": "UCbYfYH7d47n8H5D8Hcv5g" }
-  ],
-  "entertainment": [
-    { "name": "Kurzgesagt – In a Nutshell", "id": "UCsXVk37bltHxD1rDPwtNM8Q" },
-    { "name": "Veritasium", "id": "UCHnyfMqiRRG1u-2MsSQLbXA" },
-    { "name": "Mark Rober", "id": "UCY1kMZp36IQSyNx_9h4mpCg" },
-    { "name": "MKBHD", "id": "UCBJycsmduvYEL83R_U4JriQ" }
-  ],
-  "coding_web_dev": [
-    { "name": "Fireship", "id": "UCsBjURrPoezykLs9EqgamOA" },
-    { "name": "freeCodeCamp.org", "id": "UC8butISFwT-Wl7EV0hUK0BQ" },
-    { "name": "Traversy Media", "id": "UC29ju8bIPH5as8OGnQzwJyA" },
-    { "name": "Web Dev Simplified", "id": "UCFbNIlppjAuEX4znoulh0Cw" },
-    { "name": "The Net Ninja", "id": "UC4JX40jDee_tINbkjycV4Sg" },
-    { "name": "CodeWithHarry", "id": "UCeVMnSShP_Iviwkknt83cww" },
-    { "name": "Hitesh Choudhary", "id": "UCXgGY0wkgOzynnHvSEVmE3A" },
-    { "name": "Apna College", "id": "UCBwmMxybNva6P_5_j85m7QA" },
-    { "name": "Kevin Powell", "id": "UCJZv4d51b5a74Se57ChanCg" },
-    { "name": "Programming with Mosh", "id": "UCWv7vMbMWH4-V0ZXdmDpPBA" },
-    { "name": "Academind", "id": "UCSJbGtTlrDami-tDGPUV9-w" },
-    { "name": "LevelUpTuts", "id": "UCyU5wkjgQYGRB0hIHMwm2Sg" },
-    { "name": "Ben Awad", "id": "UC-8QAzbLcRglXeN_MY9blyw" },
-    { "name": "Jack Herrington", "id": "UC6vRUjYqDuoUsY46DVrsqUA" },
-    { "name": "Theo - t3.gg", "id": "UCzcQchNbNiOiyXG0qFk63xQ" },
-    { "name": "PedroTech", "id": "UC8S4rDRZn6Z_StJ-hh7ph8g" },
-    { "name": "Hyperplexed", "id": "UCRumTEx_uFrOnrGxmppD_Ag" },
-    { "name": "Codevolution", "id": "UC80PWRj_x81mj70CJ_YYlgw" },
-    { "name": "ColorCode", "id": "UCCcH2502cM09amY7o0A8XAA" },
-    { "name": "DesignCourse", "id": "UCVyRiMvfUNMA1UPlDPzG5Ow" }
-  ],
-  "cs_system_design": [
-    { "name": "Hussein Nasser", "id": "UC_ML5xP23TOWKUcc-oAE_ZQ" },
-    { "name": "Gaurav Sen", "id": "UCRPMAqdtSgd0Ipeef7iFsKw" },
-    { "name": "Arpit Bhayani", "id": "UC7J8m8WvIqSj2Y_R3fP0z4g" },
-    { "name": "ByteByteGo", "id": "UCEPefkWA89UCNOz6Wf5E5gg" },
-    { "name": "NeetCode", "id": "UC_mYaQAE6-71rjSN6CeCA-g" },
-    { "name": "ThePrimeagen", "id": "UC8ENHE5xdFSwx71u3fDH5Xw" },
-    { "name": "Computerphile", "id": "UC9-y-6csu5WGm29I7JiwpnA" },
-    { "name": "Corey Schafer", "id": "UCCezIgC97PvUuR4_gbFUs5g" },
-    { "name": "Tech With Tim", "id": "UC4JX40jDee_tINbkjycV4Sg" },
-    { "name": "MIT OpenCourseWare", "id": "UCYO_jab_esuFRV4b17AJtAw" },
-    { "name": "Low Level Learning", "id": "UC6biysICKOJ8Y5dZ1b9hXoQ" },
-    { "name": "Engineer Man", "id": "UCrUL8K81R4VBzm-KOYw7x4g" },
-    { "name": "LiveOverflow", "id": "UClcE-kVhqyiHCcjYwcpfj9w" },
-    { "name": "John Hammond", "id": "UCVeW9qkBjo3zosnqUbG7CFw" },
-    { "name": "NetworkChuck", "id": "UC9x0AN7BWHpCDHSm9NiJFJQ" },
-    { "name": "Sebastian Lague", "id": "UCmtyQOKKmrMVaKuRXz0GGDw" },
-    { "name": "Tom Scott", "id": "UCBa659QWE09Jp5U1S-7UgMA" },
-    { "name": "CS50", "id": "UCcabW7890RKJzL968QWEykA" },
-    { "name": "Google for Developers", "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw" },
-    { "name": "IBM Technology", "id": "UCd6MoB9NC6uYN2grvUNT-Zg" }
-  ],
-  "ai_data_science": [
-    { "name": "Two Minute Papers", "id": "UCbfYPyITQ-7l4upoX8nvctg" },
-    { "name": "Andrej Karpathy", "id": "UCPk8m_r6fkUSYmvgCBJ-36w" },
-    { "name": "Sentdex", "id": "UCfzlCWGWYyIQ0aLC5w48gBQ" },
-    { "name": "Krish Naik", "id": "UCNU_lfiiWBdtULKOw6X0Dig" },
-    { "name": "CampusX", "id": "UCJc9oE6u_wDqZJ1rZ0jJ6w" },
-    { "name": "Siraj Raval", "id": "UCWN3xxRkmTPmbKwht9FuE5A" },
-    { "name": "Jeremy Howard", "id": "UC5K6rN5y6uW3r2K3q1z9i6w" },
-    { "name": "DeepLearningAI", "id": "UCcIXc5mJsHVYTZR1maL5l9w" },
-    { "name": "StatQuest with Josh Starmer", "id": "UCtYLUTtgS3k1Fg4y5tAhLbw" },
-    { "name": "3Blue1Brown", "id": "UCYO_jab_esuFRV4b17AJtAw" },
-    { "name": "AI Explained", "id": "UCNJ1Ymd5yFuUPtn21xtRbbw" },
-    { "name": "Yannic Kilcher", "id": "UCZHmQk67mSJGFCXPJ7Dvuyg" },
-    { "name": "Matt Wolfe", "id": "UCn5D166aT6z-eJ5Y7yvX39w" },
-    { "name": "David Shapiro", "id": "UCcIXc5mJsHVYTZR1maL5l9w" },
-    { "name": "Data School", "id": "UCnVzApLJE2ljPZSeQylN54A" },
-    { "name": "Nicholas Renotte", "id": "UC7ad_kuxyD-WvRUJ5hA1K_w" },
-    { "name": "AssemblyAI", "id": "UCg8-7B_o_pSjV7F_T_hgT8w" },
-    { "name": "Lex Fridman", "id": "UCSHZKyawb77ixDdsGog4iWA" },
-    { "name": "Wes Roth", "id": "UCqZzC_g7U8t3j5a-6_j7w" },
-    { "name": "Prompt Engineering", "id": "UCcIXc5mJsHVYTZR1maL5l9w" }
-  ],
-  "business_finance": [
-    { "name": "Y Combinator", "id": "UCcefcZRL2oaA_uBNeo5UOWg" },
-    { "name": "Irfan Malik (Post)", "id": "UCqZzC_g7U8t3j5a-6_j7w" },
-    { "name": "Raj Shamani", "id": "UCJ_yV6l8t5a5t5X5l5t5t5g" },
-    { "name": "Shark Tank India", "id": "UCn6F-44WjC6Fh-6_j7w" },
-    { "name": "Think School", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Ali Abdaal", "id": "UCoOae5nYA7VqaXzerajD0lg" },
-    { "name": "GaryVee", "id": "UCctXZhXmG-kf3tlIXgVZUlw" },
-    { "name": "Slidebean", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Bloomberg Technology", "id": "UCrM7B7SL_g1edFOnmj-SDKg" },
-    { "name": "ColdFusion", "id": "UC4QZ_LsYcvcqPqGSqIzJ-ldA" },
-    { "name": "MagnatesMedia", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Akshat Shrivastava", "id": "UCqZzC_g7U8t3j5a-6_j7w" },
-    { "name": "Ankur Warikoo", "id": "UCRzYN32xtBf3Yxsx5BvJWJw" },
-    { "name": "Tanmay Bhat", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Finance With Sharan", "id": "UCqZzC_g7U8t3j5a-6_j7w" },
-    { "name": "The Diary Of A CEO", "id": "UCGq-a57w-1PqqjiISbS-VRg" },
-    { "name": "Harvard Business Review", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "Stanford Online", "id": "UC-b3c7kxa5vU-bnmaROgvog" },
-    { "name": "Naval", "id": "UCh_dBD5liK1rQ6aIB_iX-qQ" },
-    { "name": "Alex Hormozi", "id": "UCqZzC_g7U8t3j5a-6_j7w" }
-  ],
-  "science_engineering": [
-    { "name": "Veritasium", "id": "UCHnyfMqiRRG1u-2MsSQLbXA" },
-    { "name": "Kurzgesagt", "id": "UCsXVk37bltHxD1rDPwtNM8Q" },
-    { "name": "Mark Rober", "id": "UCY1kMZp36IQSyNx_9h4mpCg" },
-    { "name": "SmarterEveryDay", "id": "UC6107grRI4m0o2-emgoDnAA" },
-    { "name": "Real Engineering", "id": "UCR1IuLEqb6UEA_zQ81kwXfg" },
-    { "name": "The B1M", "id": "UC6nsfKvk2fB9vXYJZ5G5j5Q" },
-    { "name": "Practical Engineering", "id": "UCMOqf8ab-42UUQIdVoKwjlQ" },
-    { "name": "Physics Girl", "id": "UC7DdEm33SyaTDtWYGO2CwdA" },
-    { "name": "Steve Mould", "id": "UCEIwxahdLz7bap-VDs09rQA" },
-    { "name": "ElectroBOOM", "id": "UCJ0-OtVbG0S6TBOhtHkk0qg" },
-    { "name": "Stuff Made Here", "id": "UCj1VqrHhDte54eVg_f4B4Aw" },
-    { "name": "TED-Ed", "id": "UCsooa4yRKGN_zEE8iknghZA" },
-    { "name": "Be Smart", "id": "UCH4BNI0-FOK2dMXoFtViWHw" },
-    { "name": "SciShow", "id": "UCZYTClx2T1of7BRZ86-8fow" },
-    { "name": "MinutePhysics", "id": "UCUHW94eEFW7hkLYElJ_1I1g" },
-    { "name": "AsapSCIENCE", "id": "UCC552Sd-3nyi_tk2BudLUzA" },
-    { "name": "VSauce", "id": "UC6nSFpj9HTCZ5t-N3Rm3-HA" },
-    { "name": "Technology Connections", "id": "UCy0tKL1T7wFoYcxCe0xjC6Q" },
-    { "name": "Undecided with Matt Ferrell", "id": "UC4K10PNjqgCmD8D1H9ZtA0A" },
-    { "name": "NASA", "id": "UCLA_DiR1FfKNvjuUpBHmylQ" }
-  ]
+    "coding": [
+        {
+            "name": "Fireship",
+            "id": "UCsBjURrPoezykLs9EqgamOA"
+        },
+        {
+            "name": "Traversy Media",
+            "id": "UC29ju8bIPH5as8OGnQzwJyA"
+        },
+        {
+            "name": "freeCodeCamp.org",
+            "id": "UC8butISFwT-Wl7EV0hUK0BQ"
+        },
+        {
+            "name": "The Net Ninja",
+            "id": "UCFbNIlppjAuEX4znoulh0Cw"
+        },
+        {
+            "name": "Corey Schafer",
+            "id": "UCCezIgC97PvUuR4_gbFUs5g"
+        },
+        {
+            "name": "Tech With Tim",
+            "id": "UC4JX40jDee_tINbkjycV4Sg"
+        },
+        {
+            "name": "Google Developers",
+            "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw"
+        },
+        {
+            "name": "MIT OpenCourseWare",
+            "id": "UCYO_jab_esuFRV4b17AJtAw"
+        }
+    ],
+    "business": [
+        {
+            "name": "Y Combinator",
+            "id": "UCcefcZRL2oaA_uBNeo5UOWg"
+        },
+        {
+            "name": "TED",
+            "id": "UCAuUUnT6oDeKwE6v1NGQxug"
+        },
+        {
+            "name": "Harvard Business Review",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Stanford Graduate School of Business",
+            "id": "UC-b3c7kxa5vU-bnmaROgvog"
+        },
+        {
+            "name": "CNBC",
+            "id": "UCvJJ_dzjViJCoLf5uKUTwoA"
+        },
+        {
+            "name": "The Wall Street Journal",
+            "id": "UCbYfYH7d47n8H5D8Hcv5g"
+        }
+    ],
+    "entertainment": [
+        {
+            "name": "Kurzgesagt \u00e2\u20ac\u201c In a Nutshell",
+            "id": "UCsXVk37bltHxD1rDPwtNM8Q"
+        },
+        {
+            "name": "Veritasium",
+            "id": "UCHnyfMqiRRG1u-2MsSQLbXA"
+        },
+        {
+            "name": "Mark Rober",
+            "id": "UCY1kMZp36IQSyNx_9h4mpCg"
+        },
+        {
+            "name": "MKBHD",
+            "id": "UCBJycsmduvYEL83R_U4JriQ"
+        }
+    ],
+    "coding_web_dev": [
+        {
+            "name": "Fireship",
+            "id": "UCsBjURrPoezykLs9EqgamOA"
+        },
+        {
+            "name": "freeCodeCamp.org",
+            "id": "UC8butISFwT-Wl7EV0hUK0BQ"
+        },
+        {
+            "name": "Traversy Media",
+            "id": "UC29ju8bIPH5as8OGnQzwJyA"
+        },
+        {
+            "name": "Web Dev Simplified",
+            "id": "UCFbNIlppjAuEX4znoulh0Cw"
+        },
+        {
+            "name": "The Net Ninja",
+            "id": "UC4JX40jDee_tINbkjycV4Sg"
+        },
+        {
+            "name": "CodeWithHarry",
+            "id": "UCeVMnSShP_Iviwkknt83cww"
+        },
+        {
+            "name": "Hitesh Choudhary",
+            "id": "UCXgGY0wkgOzynnHvSEVmE3A"
+        },
+        {
+            "name": "Apna College",
+            "id": "UCBwmMxybNva6P_5_j85m7QA"
+        },
+        {
+            "name": "Kevin Powell",
+            "id": "UCJZv4d51b5a74Se57ChanCg"
+        },
+        {
+            "name": "Programming with Mosh",
+            "id": "UCWv7vMbMWH4-V0ZXdmDpPBA"
+        },
+        {
+            "name": "Academind",
+            "id": "UCSJbGtTlrDami-tDGPUV9-w"
+        },
+        {
+            "name": "LevelUpTuts",
+            "id": "UCyU5wkjgQYGRB0hIHMwm2Sg"
+        },
+        {
+            "name": "Ben Awad",
+            "id": "UC-8QAzbLcRglXeN_MY9blyw"
+        },
+        {
+            "name": "Jack Herrington",
+            "id": "UC6vRUjYqDuoUsY46DVrsqUA"
+        },
+        {
+            "name": "Theo - t3.gg",
+            "id": "UCzcQchNbNiOiyXG0qFk63xQ"
+        },
+        {
+            "name": "PedroTech",
+            "id": "UC8S4rDRZn6Z_StJ-hh7ph8g"
+        },
+        {
+            "name": "Hyperplexed",
+            "id": "UCRumTEx_uFrOnrGxmppD_Ag"
+        },
+        {
+            "name": "Codevolution",
+            "id": "UC80PWRj_x81mj70CJ_YYlgw"
+        },
+        {
+            "name": "ColorCode",
+            "id": "UCCcH2502cM09amY7o0A8XAA"
+        },
+        {
+            "name": "DesignCourse",
+            "id": "UCVyRiMvfUNMA1UPlDPzG5Ow"
+        }
+    ],
+    "cs_system_design": [
+        {
+            "name": "Hussein Nasser",
+            "id": "UC_ML5xP23TOWKUcc-oAE_ZQ"
+        },
+        {
+            "name": "Gaurav Sen",
+            "id": "UCRPMAqdtSgd0Ipeef7iFsKw"
+        },
+        {
+            "name": "Arpit Bhayani",
+            "id": "UC7J8m8WvIqSj2Y_R3fP0z4g"
+        },
+        {
+            "name": "ByteByteGo",
+            "id": "UCEPefkWA89UCNOz6Wf5E5gg"
+        },
+        {
+            "name": "NeetCode",
+            "id": "UC_mYaQAE6-71rjSN6CeCA-g"
+        },
+        {
+            "name": "ThePrimeagen",
+            "id": "UC8ENHE5xdFSwx71u3fDH5Xw"
+        },
+        {
+            "name": "Computerphile",
+            "id": "UC9-y-6csu5WGm29I7JiwpnA"
+        },
+        {
+            "name": "Corey Schafer",
+            "id": "UCCezIgC97PvUuR4_gbFUs5g"
+        },
+        {
+            "name": "Tech With Tim",
+            "id": "UC4JX40jDee_tINbkjycV4Sg"
+        },
+        {
+            "name": "MIT OpenCourseWare",
+            "id": "UCYO_jab_esuFRV4b17AJtAw"
+        },
+        {
+            "name": "Low Level Learning",
+            "id": "UC6biysICKOJ8Y5dZ1b9hXoQ"
+        },
+        {
+            "name": "Engineer Man",
+            "id": "UCrUL8K81R4VBzm-KOYw7x4g"
+        },
+        {
+            "name": "LiveOverflow",
+            "id": "UClcE-kVhqyiHCcjYwcpfj9w"
+        },
+        {
+            "name": "John Hammond",
+            "id": "UCVeW9qkBjo3zosnqUbG7CFw"
+        },
+        {
+            "name": "NetworkChuck",
+            "id": "UC9x0AN7BWHpCDHSm9NiJFJQ"
+        },
+        {
+            "name": "Sebastian Lague",
+            "id": "UCmtyQOKKmrMVaKuRXz0GGDw"
+        },
+        {
+            "name": "Tom Scott",
+            "id": "UCBa659QWE09Jp5U1S-7UgMA"
+        },
+        {
+            "name": "CS50",
+            "id": "UCcabW7890RKJzL968QWEykA"
+        },
+        {
+            "name": "Google for Developers",
+            "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw"
+        },
+        {
+            "name": "IBM Technology",
+            "id": "UCd6MoB9NC6uYN2grvUNT-Zg"
+        }
+    ],
+    "ai_data_science": [
+        {
+            "name": "Two Minute Papers",
+            "id": "UCbfYPyITQ-7l4upoX8nvctg"
+        },
+        {
+            "name": "Andrej Karpathy",
+            "id": "UCPk8m_r6fkUSYmvgCBJ-36w"
+        },
+        {
+            "name": "Sentdex",
+            "id": "UCfzlCWGWYyIQ0aLC5w48gBQ"
+        },
+        {
+            "name": "Krish Naik",
+            "id": "UCNU_lfiiWBdtULKOw6X0Dig"
+        },
+        {
+            "name": "CampusX",
+            "id": "UCJc9oE6u_wDqZJ1rZ0jJ6w"
+        },
+        {
+            "name": "Siraj Raval",
+            "id": "UCWN3xxRkmTPmbKwht9FuE5A"
+        },
+        {
+            "name": "Jeremy Howard",
+            "id": "UC5K6rN5y6uW3r2K3q1z9i6w"
+        },
+        {
+            "name": "DeepLearningAI",
+            "id": "UCcIXc5mJsHVYTZR1maL5l9w"
+        },
+        {
+            "name": "StatQuest with Josh Starmer",
+            "id": "UCtYLUTtgS3k1Fg4y5tAhLbw"
+        },
+        {
+            "name": "3Blue1Brown",
+            "id": "UCYO_jab_esuFRV4b17AJtAw"
+        },
+        {
+            "name": "AI Explained",
+            "id": "UCNJ1Ymd5yFuUPtn21xtRbbw"
+        },
+        {
+            "name": "Yannic Kilcher",
+            "id": "UCZHmQk67mSJGFCXPJ7Dvuyg"
+        },
+        {
+            "name": "Matt Wolfe",
+            "id": "UCn5D166aT6z-eJ5Y7yvX39w"
+        },
+        {
+            "name": "David Shapiro",
+            "id": "UCcIXc5mJsHVYTZR1maL5l9w"
+        },
+        {
+            "name": "Data School",
+            "id": "UCnVzApLJE2ljPZSeQylN54A"
+        },
+        {
+            "name": "Nicholas Renotte",
+            "id": "UC7ad_kuxyD-WvRUJ5hA1K_w"
+        },
+        {
+            "name": "AssemblyAI",
+            "id": "UCg8-7B_o_pSjV7F_T_hgT8w"
+        },
+        {
+            "name": "Lex Fridman",
+            "id": "UCSHZKyawb77ixDdsGog4iWA"
+        },
+        {
+            "name": "Wes Roth",
+            "id": "UCqZzC_g7U8t3j5a-6_j7w"
+        },
+        {
+            "name": "Prompt Engineering",
+            "id": "UCcIXc5mJsHVYTZR1maL5l9w"
+        }
+    ],
+    "business_finance": [
+        {
+            "name": "Y Combinator",
+            "id": "UCcefcZRL2oaA_uBNeo5UOWg"
+        },
+        {
+            "name": "Irfan Malik (Post)",
+            "id": "UCqZzC_g7U8t3j5a-6_j7w"
+        },
+        {
+            "name": "Raj Shamani",
+            "id": "UCJ_yV6l8t5a5t5X5l5t5t5g"
+        },
+        {
+            "name": "Shark Tank India",
+            "id": "UCn6F-44WjC6Fh-6_j7w"
+        },
+        {
+            "name": "Think School",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Ali Abdaal",
+            "id": "UCoOae5nYA7VqaXzerajD0lg"
+        },
+        {
+            "name": "GaryVee",
+            "id": "UCctXZhXmG-kf3tlIXgVZUlw"
+        },
+        {
+            "name": "Slidebean",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Bloomberg Technology",
+            "id": "UCrM7B7SL_g1edFOnmj-SDKg"
+        },
+        {
+            "name": "ColdFusion",
+            "id": "UC4QZ_LsYcvcqPqGSqIzJ-ldA"
+        },
+        {
+            "name": "MagnatesMedia",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Akshat Shrivastava",
+            "id": "UCqZzC_g7U8t3j5a-6_j7w"
+        },
+        {
+            "name": "Ankur Warikoo",
+            "id": "UCRzYN32xtBf3Yxsx5BvJWJw"
+        },
+        {
+            "name": "Tanmay Bhat",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Finance With Sharan",
+            "id": "UCqZzC_g7U8t3j5a-6_j7w"
+        },
+        {
+            "name": "The Diary Of A CEO",
+            "id": "UCGq-a57w-1PqqjiISbS-VRg"
+        },
+        {
+            "name": "Harvard Business Review",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "Stanford Online",
+            "id": "UC-b3c7kxa5vU-bnmaROgvog"
+        },
+        {
+            "name": "Naval",
+            "id": "UCh_dBD5liK1rQ6aIB_iX-qQ"
+        },
+        {
+            "name": "Alex Hormozi",
+            "id": "UCqZzC_g7U8t3j5a-6_j7w"
+        }
+    ],
+    "science_engineering": [
+        {
+            "name": "Veritasium",
+            "id": "UCHnyfMqiRRG1u-2MsSQLbXA"
+        },
+        {
+            "name": "Kurzgesagt",
+            "id": "UCsXVk37bltHxD1rDPwtNM8Q"
+        },
+        {
+            "name": "Mark Rober",
+            "id": "UCY1kMZp36IQSyNx_9h4mpCg"
+        },
+        {
+            "name": "SmarterEveryDay",
+            "id": "UC6107grRI4m0o2-emgoDnAA"
+        },
+        {
+            "name": "Real Engineering",
+            "id": "UCR1IuLEqb6UEA_zQ81kwXfg"
+        },
+        {
+            "name": "The B1M",
+            "id": "UC6nsfKvk2fB9vXYJZ5G5j5Q"
+        },
+        {
+            "name": "Practical Engineering",
+            "id": "UCMOqf8ab-42UUQIdVoKwjlQ"
+        },
+        {
+            "name": "Physics Girl",
+            "id": "UC7DdEm33SyaTDtWYGO2CwdA"
+        },
+        {
+            "name": "Steve Mould",
+            "id": "UCEIwxahdLz7bap-VDs09rQA"
+        },
+        {
+            "name": "ElectroBOOM",
+            "id": "UCJ0-OtVbG0S6TBOhtHkk0qg"
+        },
+        {
+            "name": "Stuff Made Here",
+            "id": "UCj1VqrHhDte54eVg_f4B4Aw"
+        },
+        {
+            "name": "TED-Ed",
+            "id": "UCsooa4yRKGN_zEE8iknghZA"
+        },
+        {
+            "name": "Be Smart",
+            "id": "UCH4BNI0-FOK2dMXoFtViWHw"
+        },
+        {
+            "name": "SciShow",
+            "id": "UCZYTClx2T1of7BRZ86-8fow"
+        },
+        {
+            "name": "MinutePhysics",
+            "id": "UCUHW94eEFW7hkLYElJ_1I1g"
+        },
+        {
+            "name": "AsapSCIENCE",
+            "id": "UCC552Sd-3nyi_tk2BudLUzA"
+        },
+        {
+            "name": "VSauce",
+            "id": "UC6nSFpj9HTCZ5t-N3Rm3-HA"
+        },
+        {
+            "name": "Technology Connections",
+            "id": "UCy0tKL1T7wFoYcxCe0xjC6Q"
+        },
+        {
+            "name": "Undecided with Matt Ferrell",
+            "id": "UC4K10PNjqgCmD8D1H9ZtA0A"
+        },
+        {
+            "name": "NASA",
+            "id": "UCLA_DiR1FfKNvjuUpBHmylQ"
+        }
+    ],
+    "gist_id": "a35a00fe2266cf2178c43501c6c2b640",
+    "my_channels": [
+        {
+            "name": "raj shamani",
+            "id": "UCzwCEE_PchiBUMnA3qhGVg"
+        }
+    ]
 }
