@@ -148,22 +148,3 @@ MIT — Feel free to fork and build on this!
 *Built for developers who value their focus.*
 
 ---
-
-## 🔗 Links
-
-- **Dev.to Submission:** https://dev.to/pz_khalid/focus-feed-a-github-cli-extension-for-intentional-learning-3852
-- **GitHub Repository:** https://github.com/Pakeeza1508/gh-focus
-- **Extension Install:** `gh extension install Pakeeza1508/gh-focus`
-- **Technical Challenges Documentation:** [CHALLENGES.md](CHALLENGES.md)
-
----
-
-## License
-
-MIT - Feel free to fork and build on this!
-
----
-
-**🚀 GitHub CLI Challenge 2026 Submission**
-
-*Built for developers who value their focus.*
