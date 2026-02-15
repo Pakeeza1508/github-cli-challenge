@@ -76,17 +76,22 @@ $ gh focus
 - Python 3.7+
 - pip
 
-### Install as a GitHub CLI Extension
+### Install as a GitHub CLI Extension (Recommended)
 
 ```bash
-gh extension install YOUR_USERNAME/gh-focus
+gh extension install Pakeeza1508/gh-focus
+gh focus
 ```
 
-### Quick Setup (Windows)
+**First Run Setup:**
+The app will show you how to install MPV for ad-free playback (one command, run once!).
 
+### Quick Setup (Local Development)
+
+**Windows:**
 ```powershell
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/github-cli-challenge.git
+git clone https://github.com/Pakeeza1508/github-cli-challenge.git
 cd github-cli-challenge/gh-focus
 
 # Create virtual environment
@@ -97,13 +102,12 @@ python -m venv venv
 pip install -r requirements.txt
 
 # Run directly
-python gh-focus
+python gh-focus.py
 ```
 
-### macOS/Linux
-
+**macOS/Linux:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/github-cli-challenge.git
+git clone https://github.com/Pakeeza1508/github-cli-challenge.git
 cd github-cli-challenge/gh-focus
 
 python -m venv venv
@@ -111,12 +115,77 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 
-python gh-focus
+python gh-focus.py
 ```
 
-### Optional: Install MPV (Recommended)
+---
 
-For the best distraction-free experience, install MPV:
+## 🎬 Enable Ad-Free Video Playback (CRITICAL)
+
+**Why This Matters:** Without a player, videos open in YouTube browser (full ads, distractions). With MPV, you get distraction-free playback.
+
+### ⭐ Install MPV (One-Time Setup)
+
+**Windows (Recommended - easiest):**
+```powershell
+winget install io.mpv.mpv
+```
+
+**Alternative on Windows:**
+```powershell
+# Using Chocolatey
+choco install mpv
+```
+
+**macOS:**
+```bash
+brew install mpv
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt-get install mpv
+```
+
+**After installation:**
+```bash
+gh focus  # Restart the app
+```
+
+The app automatically detects MPV and activates **Ad-Free Distraction-Free Mode**! ✨
+
+### Option B: Use VLC Instead
+
+If MPV doesn't work for you:
+
+**Windows:**
+```powershell
+winget install VideoLAN.VLC
+```
+
+**macOS:**
+```bash
+brew install vlc
+```
+
+**Linux:**
+```bash
+sudo apt-get install vlc
+```
+
+---
+
+## Video Player Priority
+
+The app tries these players in order (stops at first found):
+
+1. **MPV** (Recommended) - Lightweight, blazing fast, zero ads
+2. **VLC** - Popular, reliable fallback  
+3. **Browser** (Fallback only) - Full YouTube experience with ads
+
+If none are installed, you'll see setup instructions on first run.
+
+### Optional: Install MPV (Recommended)
 
 **Windows:**
 ```powershell

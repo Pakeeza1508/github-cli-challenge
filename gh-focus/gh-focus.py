@@ -122,7 +122,7 @@ def save_to_learning_log(video_title, video_url):
 
 def open_safe_mode(video_id):
     """
-    Opens video using the local mpv.exe if found, otherwise tries system players.
+    Opens video using available players. Priority: MPV > VLC > Browser (with setup guide)
     """
     url = f"https://www.youtube.com/watch?v={video_id}"
     
@@ -131,19 +131,17 @@ def open_safe_mode(video_id):
     local_mpv = os.path.join(script_dir, "mpv.exe")
     
     if os.path.exists(local_mpv):
-        print(f"[bold green]🚀 Launching Portable MPV...[/bold green]")
-        # We need to pass the full path to yt-dlp if it's not in PATH, 
-        # but since you pip installed it, mpv should find it automatically.
+        print(f"[bold green]🚀 Launching Portable MPV (Ad-Free)...[/bold green]")
         subprocess.run([local_mpv, url])
         return
 
-    # 2. Check for System MPV (Global install)
+    # 2. Check for System MPV (Global install) - RECOMMENDED
     if shutil.which("mpv"):
-        print(f"[bold green]🚀 Launching System MPV...[/bold green]")
+        print(f"[bold green]🚀 Launching System MPV (Ad-Free Distraction-Free Experience)...[/bold green]")
         subprocess.run(["mpv", url])
         return
 
-    # 3. Check for VLC (Backup)
+    # 3. Check for VLC (Backup player)
     vlc_path = shutil.which("vlc")
     if not vlc_path:
         # Check standard Windows paths
@@ -157,14 +155,28 @@ def open_safe_mode(video_id):
                 break
     
     if vlc_path:
-        print(f"[bold orange3]🎬 Launching VLC...[/bold orange3]")
+        print(f"[bold cyan]🎬 Launching VLC (Ad-Free)...[/bold cyan]")
         subprocess.run([vlc_path, url, "--play-and-exit"])
         return
 
-    # 4. Give up and use Browser
-    print("[bold red]❌ No Player Found![/bold red]")
-    print(f"Please copy 'mpv.exe' into this folder: {script_dir}")
-    print("[yellow]Falling back to Browser...[/yellow]")
+    # 4. No player found - provide setup instructions
+    print()
+    print(Panel(
+        "[bold yellow]⚠️  No Distraction-Free Player Detected[/bold yellow]\n\n"
+        "[yellow]To enable ad-free video playback:[/yellow]\n\n"
+        "[bold]Option 1: Install MPV (Recommended)[/bold]\n"
+        "[green]winget install io.mpv.mpv[/green]\n\n"
+        "[bold]Option 2: Install VLC[/bold]\n"
+        "[green]winget install VideoLAN.VLC[/green]\n\n"
+        "[dim]After installation, restart gh focus and it will work automatically![/dim]",
+        title="🎯 Setup Required for Ad-Free Mode",
+        border_style="yellow",
+        padding=(1, 2)
+    ))
+    print()
+    
+    # Fallback to browser (not ideal, but works)
+    print("[cyan]Opening in browser (with ads)...[/cyan]")
     webbrowser.open(url)
 
 def show_banner():
@@ -580,15 +592,21 @@ def main():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     local_mpv = os.path.join(script_dir, "mpv.exe")
-    if not os.path.exists(local_mpv) and not shutil.which("mpv"):
+    
+    # Check if user has a player installed
+    has_player = os.path.exists(local_mpv) or shutil.which("mpv") or shutil.which("vlc")
+    
+    if not has_player:
         print(Panel(
-            "[yellow]MPV Player not detected![/yellow]\n\n"
-            "For the best experience (no ads/shorts), please:\n"
-            "1. Download mpv.exe\n"
-            f"2. Place it in this folder: [cyan]{script_dir}[/cyan]",
-            title="Setup Required"
+            "[bold cyan]🎯 First Time Setup: Enable Ad-Free Mode[/bold cyan]\n\n"
+            "[yellow]Install MPV for distraction-free learning:[/yellow]\n\n"
+            "[bold green]winget install io.mpv.mpv[/bold green]\n\n"
+            "[dim]Or use VLC: winget install VideoLAN.VLC[/dim]\n"
+            "[dim]Then restart gh focus to activate![/dim]",
+            border_style="cyan",
+            padding=(1, 2)
         ))
-        input("Press Enter to continue using Browser Mode...")
+        print()
     
     # MAIN LOOP: Keeps the app running
     while True:
