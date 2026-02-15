@@ -68,6 +68,41 @@ $ gh focus
 
 ---
 
+## 🚀 Quick Start (30 seconds)
+
+### Run via GitHub CLI Extension (Easiest)
+
+```powershell
+# 1. Install the extension
+gh extension install Pakeeza1508/gh-focus
+
+# 2. Run it
+gh focus
+
+# 3. (Optional) Install MPV for ad-free mode - app will show instructions
+winget install io.mpv.mpv
+```
+
+That's it! 🎉
+
+### Run Locally (Development)
+
+**Windows:**
+```powershell
+git clone https://github.com/Pakeeza1508/github-cli-challenge.git
+cd github-cli-challenge/gh-focus
+python gh-focus.py
+```
+
+**macOS/Linux:**
+```bash
+git clone https://github.com/Pakeeza1508/github-cli-challenge.git
+cd github-cli-challenge/gh-focus
+python3 gh-focus.py
+```
+
+---
+
 ## Installation
 
 ### Prerequisites
